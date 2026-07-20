@@ -25,23 +25,6 @@
 
 ---
 
-# 📸 Screenshots
-
-> Add screenshots of your application here.
-
-Example:
-
-```
-screenshots/
-│── dashboard.png
-│── weather-hub.png
-│── ai-chat.png
-│── plant-library.png
-│── marketplace.png
-```
-
----
-
 # 🚀 Technologies Used
 
 ## Frontend
