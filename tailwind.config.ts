@@ -1,0 +1,63 @@
+import type { Config } from 'tailwindcss';
+
+export default {
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        background: 'rgb(var(--background) / <alpha-value>)',
+        card: 'rgb(var(--card) / <alpha-value>)',
+        'text-primary': 'rgb(var(--text-primary) / <alpha-value>)',
+        'text-secondary': 'rgb(var(--text-secondary) / <alpha-value>)',
+        'text-muted': 'rgb(var(--text-muted) / <alpha-value>)',
+        border: 'rgb(var(--border) / <alpha-value>)',
+        success: 'rgb(var(--success) / <alpha-value>)',
+        'success-text': 'rgb(var(--success-text) / <alpha-value>)',
+        'success-soft': 'rgb(var(--success-soft) / <alpha-value>)',
+        warning: 'rgb(var(--warning) / <alpha-value>)',
+        'warning-text': 'rgb(var(--warning-text) / <alpha-value>)',
+        'warning-soft': 'rgb(var(--warning-soft) / <alpha-value>)',
+        danger: 'rgb(var(--danger) / <alpha-value>)',
+        'danger-text': 'rgb(var(--danger-text) / <alpha-value>)',
+        'danger-soft': 'rgb(var(--danger-soft) / <alpha-value>)',
+        info: 'rgb(var(--info) / <alpha-value>)',
+        'info-text': 'rgb(var(--info-text) / <alpha-value>)',
+        'info-soft': 'rgb(var(--info-soft) / <alpha-value>)',
+        progress: 'rgb(var(--progress) / <alpha-value>)',
+        'progress-track': 'rgb(var(--progress-track) / <alpha-value>)',
+        'chart-primary': 'rgb(var(--chart-primary) / <alpha-value>)',
+        'chart-secondary': 'rgb(var(--chart-secondary) / <alpha-value>)',
+        'chart-grid': 'rgb(var(--chart-grid) / <alpha-value>)',
+        'chart-label': 'rgb(var(--chart-label) / <alpha-value>)',
+        canvas: 'rgb(var(--canvas) / <alpha-value>)',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        line: 'rgb(var(--line) / <alpha-value>)',
+        brand: 'rgb(var(--brand) / <alpha-value>)',
+        'brand-dark': 'rgb(var(--brand-dark) / <alpha-value>)',
+        'brand-soft': 'rgb(var(--brand-soft) / <alpha-value>)',
+      },
+      boxShadow: {
+        card: '0 1px 2px rgb(18 43 31 / 0.03), 0 8px 24px rgb(18 43 31 / 0.04)',
+        elevated: '0 12px 40px rgb(18 43 31 / 0.11)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      // A deliberately generous scale keeps the entire product readable at a glance.
+      // Semantic headings retain their own global sizes in globals.css.
+      fontSize: {
+        xs: ['0.9375rem', { lineHeight: '1.45rem' }],
+        sm: ['1rem', { lineHeight: '1.6rem' }],
+        base: ['1rem', { lineHeight: '1.65rem' }],
+        lg: ['1.375rem', { lineHeight: '1.35' }],
+        xl: ['1.875rem', { lineHeight: '1.25' }],
+        '2xl': ['2.5rem', { lineHeight: '1.15' }],
+        '3xl': ['2.5rem', { lineHeight: '1.12' }],
+        '4xl': ['2.625rem', { lineHeight: '1.1' }],
+      },
+    },
+  },
+  plugins: [],
+} satisfies Config;
