@@ -74,16 +74,16 @@ Common errors: `503` means `OPENAI_API_KEY` is missing; `502` means the upstream
 
 <!-- Screenshot placeholder: OpenAI project API-key page -->
 
-## 4. OpenWeather One Call 3.0
+## 4. OpenWeather Free Weather APIs
 
-- **Official website:** [One Call API 3.0](https://openweathermap.org/api/one-call-3)
-- **Purpose:** current conditions, 7-day outlook, humidity, wind, rainfall, UV, sunrise/sunset, alerts, and gardening warnings.
-- **Cost and quota:** the current One Call “by call” plan includes 1,000 calls/day at no cost, then usage is pay-as-you-go. Confirm current terms in your OpenWeather billing dashboard before launch.
+- **Official website:** [Current Weather](https://openweathermap.org/current) and [5 Day / 3 Hour Forecast](https://openweathermap.org/forecast5)
+- **Purpose:** current temperature, humidity, pressure, wind, cloud cover, rainfall, sunrise/sunset, rain probability, and a five-day gardening forecast.
+- **Cost and quota:** both endpoints work with the standard OpenWeather free plan. They do not require a separate paid subscription.
 
 ### Create a key
 
 1. Create an account at [OpenWeather](https://home.openweathermap.org/users/sign_up).
-2. In the API-key tab, create/copy a key and subscribe to One Call 3.0 if required by your account.
+2. In the API-key tab, create or copy a key. No separate paid subscription is needed.
 3. Add it to Vercel as `OPENWEATHER_API_KEY`.
 4. Turn on `VITE_ENABLE_LIVE_SERVICES=true` and redeploy.
 
@@ -98,7 +98,15 @@ Example normalized response:
 ```json
 {
   "provider": "openweather",
-  "current": { "temperature": 31, "humidity": 68, "rainfall": 0, "uvIndex": 8 },
+  "current": {
+    "temperature": 31,
+    "humidity": 68,
+    "pressure": 1008,
+    "cloudCover": 42,
+    "rainfall": 0,
+    "rainChance": 8,
+    "uvIndex": null
+  },
   "daily": [
     {
       "date": "2026-07-20",
@@ -112,9 +120,9 @@ Example normalized response:
 }
 ```
 
-**Test:** open Intelligence Hub, select a location, and refresh. The weather card and seven-day chart will use live data when configured; demo data remains when live services are off.
+**Test:** open Intelligence Hub, select a location, and refresh. The weather card and five-day forecast use live data when configured; demo data remains when live services are off.
 
-Troubleshooting: `401/502` usually means the key or One Call subscription is not active; `429` is a provider or GreenMind limit; a timeout is safe to retry. OpenWeather needs coordinates, so use browser GPS or city search first.
+Troubleshooting: `401/502` usually means the key is invalid, newly created, or not active yet; `429` is a provider or GreenMind limit; a timeout is safe to retry. OpenWeather needs coordinates, so use browser GPS or city search first.
 
 <!-- Screenshot placeholder: OpenWeather API-key tab -->
 

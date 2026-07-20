@@ -18,7 +18,10 @@ export type WeatherSnapshot = {
     temperature: number;
     feelsLike: number;
     humidity: number;
+    pressure: number;
+    cloudCover: number;
     rainfall: number;
+    rainChance: number;
     windSpeed: number;
     uvIndex: number | null;
     sunrise: string;

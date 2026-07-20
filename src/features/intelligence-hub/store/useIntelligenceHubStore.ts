@@ -21,9 +21,15 @@ export const useIntelligenceHubStore = create<IntelligenceHubState>((set) => ({
         snapshot: await intelligenceHubService.getSnapshot(location),
         isLoading: false,
       });
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Intelligence Hub refresh failed.', error);
+      }
       set({
-        error: 'Intelligence signals could not be refreshed. Please try again.',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Intelligence signals could not be refreshed. Please try again.',
         isLoading: false,
       });
     }

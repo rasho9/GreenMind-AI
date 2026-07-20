@@ -43,42 +43,56 @@ function isRetryable(method?: string) {
   return ['GET', 'HEAD', 'OPTIONS'].includes((method ?? 'GET').toUpperCase());
 }
 
-function errorForStatus(status: number) {
+function errorForStatus(status: number, message?: string) {
   if (status === 401)
     return new ApiError(
-      'Your session needs to be renewed. Please sign in again.',
+      message ?? 'Your session needs to be renewed. Please sign in again.',
       'UNAUTHORIZED',
       status,
     );
   if (status === 403)
     return new ApiError(
-      'You do not have permission to use this service.',
+      message ?? 'You do not have permission to use this service.',
       'FORBIDDEN',
       status,
     );
   if (status === 404)
     return new ApiError(
-      'The requested service could not be found.',
+      message ?? 'The requested service could not be found.',
       'NOT_FOUND',
       status,
     );
   if (status === 429)
     return new ApiError(
-      'This service is busy. Please wait a moment and try again.',
+      message ?? 'This service is busy. Please wait a moment and try again.',
       'RATE_LIMITED',
       status,
     );
   if (status >= 500)
     return new ApiError(
-      'The service is temporarily unavailable. Please try again shortly.',
+      message ?? 'The service is temporarily unavailable. Please try again shortly.',
       'SERVER',
       status,
     );
   return new ApiError(
-    `The service could not complete this request (${status}).`,
+    message ?? `The service could not complete this request (${status}).`,
     'HTTP',
     status,
   );
+}
+
+async function responseErrorMessage(response: Response) {
+  try {
+    const body = (await response.clone().json()) as {
+      error?: { message?: unknown };
+    };
+    const message = body.error?.message;
+    return typeof message === 'string' && message.trim()
+      ? message.trim().slice(0, 500)
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 const sleep = (milliseconds: number) =>
@@ -177,7 +191,12 @@ export const apiClient = {
       for (const interceptor of responseInterceptors)
         response = await interceptor(response);
       if (!response.ok) {
-        throw errorForStatus(response.status);
+        // Server routes return user-safe provider diagnostics. Preserve that
+        // message so a real upstream failure is never flattened into a vague UI error.
+        throw errorForStatus(
+          response.status,
+          await responseErrorMessage(response),
+        );
       }
       if (response.status === 204) return undefined as T;
       try {
