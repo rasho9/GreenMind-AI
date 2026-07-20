@@ -42,8 +42,16 @@ export function GardenDiaryPage() {
   );
   const [notice, setNotice] = useState('');
   const submitEntry = async (input: DiaryEntryInput) => {
-    const analysis = await diaryAnalysisService.analyze(input);
-    addEntry(input, analysis);
+    try {
+      const analysis = await diaryAnalysisService.analyze(input);
+      addEntry(input, analysis);
+    } catch (error) {
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : 'GreenMind AI could not analyze this observation. Please try again.',
+      );
+    }
   };
   const exportDiary = async (format: 'PDF' | 'CSV' | 'Print') => {
     setNotice(await diaryExportService.requestExport(format));

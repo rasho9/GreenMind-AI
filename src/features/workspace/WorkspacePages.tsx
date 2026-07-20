@@ -901,7 +901,7 @@ const faqItems = [
   {
     question: 'How does GreenMind AI use your garden context?',
     answer:
-      'The workspace combines the data you add in modules such as Garden Diary, Plant Doctor, location, and weather. Future GPT integration will receive a typed, server-side context rather than direct client credentials.',
+      'The workspace combines the data you add in modules such as Garden Diary, Plant Doctor, location, and weather. GreenMind sends typed context to the secure server route rather than exposing provider credentials in the browser.',
   },
   {
     question: 'How do I improve a plant health score?',

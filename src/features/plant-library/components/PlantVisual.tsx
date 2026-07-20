@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import type { Plant } from '../types';
 
@@ -17,6 +18,7 @@ export function PlantVisual({
   plant: Plant;
   large?: boolean;
 }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const Icon = plant.icon;
   return (
     <div
@@ -28,7 +30,17 @@ export function PlantVisual({
       <div
         className={`absolute rounded-full border border-current/10 ${large ? 'size-[165px]' : 'size-24'}`}
       />
-      <Icon className="relative" size={large ? 86 : 58} strokeWidth={1.25} />
+      {plant.imageUrl && !imageFailed ? (
+        <img
+          src={plant.imageUrl}
+          alt={`${plant.name} from the connected plant data provider`}
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+          className="relative h-full w-full object-cover"
+        />
+      ) : (
+        <Icon className="relative" size={large ? 86 : 58} strokeWidth={1.25} />
+      )}
       <span
         className={`absolute grid place-items-center rounded-full bg-white/65 text-current shadow-sm ${large ? 'right-5 top-5 size-10' : 'right-3 top-3 size-7'}`}
       >

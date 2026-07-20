@@ -4,10 +4,7 @@ import { useRecommendationStore } from '@/features/recommendations/store/useReco
 import { useMarketplaceStore } from '@/features/marketplace/store/useMarketplaceStore';
 import type { ContextResolver } from './integrationContracts';
 
-/**
- * Reads live workspace state into the provider-neutral assistant context contract.
- * A server implementation can preserve this shape while resolving authenticated data instead.
- */
+/** Reads workspace facts into the bounded context contract sent to the secure AI route. */
 export const smartContextService: ContextResolver = {
   async getContext() {
     const diary = useGardenDiaryStore.getState();
@@ -16,6 +13,7 @@ export const smartContextService: ContextResolver = {
     const marketplace = useMarketplaceStore.getState();
     const latestScan = doctor.scans[0];
     const openTasks = diary.reminders.filter((reminder) => !reminder.completed);
+
     return [
       {
         module: 'Plant Doctor',
@@ -34,7 +32,7 @@ export const smartContextService: ContextResolver = {
       {
         module: 'Weather',
         label: 'Local conditions',
-        detail: 'Lahore - warm and humid - summer profile',
+        detail: 'Location-specific weather context is available when configured.',
         active: true,
       },
       {
@@ -50,7 +48,7 @@ export const smartContextService: ContextResolver = {
       {
         module: 'AI Marketplace',
         label: 'AI-matched garden products',
-        detail: `${marketplace.wishlistIds.length} saved · ${marketplace.cart.reduce((total, item) => total + item.quantity, 0)} in mock cart · catalog ready for provider integration`,
+        detail: `${marketplace.wishlistIds.length} saved products - ${marketplace.cart.reduce((total, item) => total + item.quantity, 0)} cart items`,
         active: true,
       },
     ];

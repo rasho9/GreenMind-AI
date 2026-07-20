@@ -88,27 +88,31 @@ function AssistantResponseCard({
               </p>
             </div>
           </div>
-          <Badge className="bg-brand-soft/70 text-brand-dark">
-            {response.confidence}% confidence
-          </Badge>
+          {typeof response.confidence === 'number' && (
+            <Badge className="bg-brand-soft/70 text-brand-dark">
+              {response.confidence}% confidence
+            </Badge>
+          )}
         </div>
       </div>
       <div className="p-4 sm:p-5">
         <p className="text-[15px] font-semibold leading-7 text-ink">
           {message.content}
         </p>
-        <button
-          type="button"
-          onClick={() => setIsExpanded((value) => !value)}
-          className="focus-ring mt-5 flex w-full items-center justify-between rounded-xl border border-line bg-canvas/52 px-3 py-2.5 text-left text-xs font-extrabold text-ink hover:border-brand/25 hover:bg-brand-soft/38"
-        >
-          <span>Detailed explanation</span>
-          <ChevronDown
-            size={15}
-            className={cn('transition-transform', isExpanded && 'rotate-180')}
-          />
-        </button>
-        {isExpanded && (
+        {response.detailedExplanation.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setIsExpanded((value) => !value)}
+            className="focus-ring mt-5 flex w-full items-center justify-between rounded-xl border border-line bg-canvas/52 px-3 py-2.5 text-left text-xs font-extrabold text-ink hover:border-brand/25 hover:bg-brand-soft/38"
+          >
+            <span>Detailed explanation</span>
+            <ChevronDown
+              size={15}
+              className={cn('transition-transform', isExpanded && 'rotate-180')}
+            />
+          </button>
+        )}
+        {isExpanded && response.detailedExplanation.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -166,16 +170,20 @@ function AssistantResponseCard({
             </pre>
           </div>
         )}
-        <div className="mt-5 grid gap-3 lg:grid-cols-2">
-          <div className="rounded-[17px] border border-line bg-canvas/46 p-3.5">
+        {(response.quickTips.length > 0 || response.warnings.length > 0) && (
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {response.quickTips.length > 0 && (
+              <div className="rounded-[17px] border border-line bg-canvas/46 p-3.5">
             <p className="flex items-center gap-1.5 text-xs font-extrabold">
               <Sparkles size={14} className="text-brand" /> Quick tips
             </p>
             <div className="mt-3">
               <BulletList items={response.quickTips} />
             </div>
-          </div>
-          <div className="rounded-[17px] border border-[#eddeb9] bg-[#fffaf0] p-3.5">
+              </div>
+            )}
+            {response.warnings.length > 0 && (
+              <div className="rounded-[17px] border border-[#eddeb9] bg-[#fffaf0] p-3.5">
             <p className="flex items-center gap-1.5 text-xs font-extrabold text-[#95651f]">
               <AlertTriangle size={14} /> Watch-outs
             </p>
@@ -186,18 +194,23 @@ function AssistantResponseCard({
                 tone="warning"
               />
             </div>
+              </div>
+            )}
           </div>
-        </div>
-        <div className="mt-5 rounded-[17px] border border-brand/15 bg-brand-soft/34 p-3.5">
+        )}
+        {response.recommendedActions.length > 0 && (
+          <div className="mt-5 rounded-[17px] border border-brand/15 bg-brand-soft/34 p-3.5">
           <p className="flex items-center gap-1.5 text-xs font-extrabold text-brand-dark">
             <ListChecks size={15} /> Recommended actions
           </p>
           <div className="mt-3">
             <BulletList items={response.recommendedActions} />
           </div>
-        </div>
-        <div className="mt-5 flex flex-col gap-4 border-t border-line pt-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+          </div>
+        )}
+        {(response.relatedPlants.length > 0 || response.sources.length > 0) && (
+          <div className="mt-5 flex flex-col gap-4 border-t border-line pt-4 sm:flex-row sm:items-end sm:justify-between">
+          {response.relatedPlants.length > 0 && <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">
               Related plants
             </p>
@@ -211,10 +224,10 @@ function AssistantResponseCard({
                 </span>
               ))}
             </div>
-          </div>
-          <div className="sm:max-w-[230px]">
+          </div>}
+          {response.sources.length > 0 && <div className="sm:max-w-[230px]">
             <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">
-              Sources placeholder
+              Sources
             </p>
             <div className="mt-2 space-y-1">
               {response.sources.map((source) => (
@@ -229,8 +242,9 @@ function AssistantResponseCard({
                 </p>
               ))}
             </div>
-          </div>
+          </div>}
         </div>
+        )}
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
           <div className="flex items-center gap-0.5">
             <Button
@@ -301,7 +315,7 @@ function AssistantResponseCard({
           </p>
         </div>
       </div>
-      <div className="border-t border-line bg-canvas/45 px-4 py-3 sm:px-5">
+      {response.followUps.length > 0 && <div className="border-t border-line bg-canvas/45 px-4 py-3 sm:px-5">
         <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">
           Continue the conversation
         </p>
@@ -317,7 +331,7 @@ function AssistantResponseCard({
             </button>
           ))}
         </div>
-      </div>
+      </div>}
     </div>
   );
 }
@@ -336,6 +350,26 @@ export function ChatMessage({ message, ...handlers }: ChatMessageProps) {
         <p className="mt-1.5 pr-1 text-right text-[10px] font-medium text-muted">
           You · {message.createdAt}
         </p>
+      </motion.article>
+    );
+  }
+  if (message.error) {
+    return (
+      <motion.article
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-4xl"
+        role="alert"
+      >
+        <div className="mb-2 flex items-center gap-2">
+          <span className="grid size-6 place-items-center rounded-lg bg-danger/10 text-danger">
+            <AlertTriangle size={13} />
+          </span>
+          <p className="text-[11px] font-extrabold text-danger">GreenMind AI unavailable</p>
+        </div>
+        <div className="rounded-[20px] border border-danger/25 bg-danger/5 p-4 text-sm leading-6 text-ink shadow-card">
+          {message.error}
+        </div>
       </motion.article>
     );
   }

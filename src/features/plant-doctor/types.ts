@@ -28,8 +28,7 @@ export type TreatmentMilestone = {
 };
 
 /**
- * Provider-neutral result returned by the plant vision service.
- * A future GPT-5.6 Vision adapter can return this exact shape without changing UI code.
+ * Provider-neutral result returned by the live server-side vision service.
  */
 export type PlantDoctorAnalysis = {
   plantName: string;

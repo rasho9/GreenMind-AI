@@ -32,8 +32,7 @@ export type AssistantCodeBlock = {
 };
 
 /**
- * A provider-neutral assistant result. A future GPT-5.6 response mapper should return this
- * shape after grounding, tool calls, and any safety review happen on the server.
+ * A provider-neutral assistant result produced from the server-routed Responses API stream.
  */
 export type AssistantResponse = {
   summary: string;
@@ -43,7 +42,7 @@ export type AssistantResponse = {
   recommendedActions: string[];
   relatedPlants: string[];
   sources: Array<{ label: string; detail: string }>;
-  confidence: number;
+  confidence?: number;
   followUps: string[];
   table?: AssistantTable;
   codeBlock?: AssistantCodeBlock;
@@ -56,6 +55,7 @@ export type ChatMessage = {
   createdAt: string;
   response?: AssistantResponse;
   isStreaming?: boolean;
+  error?: string;
   feedback?: AssistantFeedback;
 };
 
@@ -72,6 +72,7 @@ export type AssistantRequest = {
   message: string;
   context: SmartContext[];
   attachments?: Array<{ name: string; type: string }>;
+  history?: Array<{ role: AssistantRole; content: string }>;
   conversationId: string;
 };
 

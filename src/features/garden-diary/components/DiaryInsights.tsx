@@ -55,13 +55,13 @@ export function DiaryInsights({
                 className="mt-0.5 shrink-0 text-success"
               />
               <span>
-                The plant appears healthy. Continue the current care rhythm.
+                Save a diary observation to receive a live AI growth analysis.
               </span>
             </div>
           )}
         </div>
         <p className="emphasis-card-accent mt-4 text-[10px] font-bold">
-          Mock analysis · GPT-5.6 service ready
+          Live analysis appears after a new observation is saved.
         </p>
       </div>
     </Card>

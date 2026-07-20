@@ -82,8 +82,7 @@ const entries: DiaryEntry[] = [
     growthRating: 5,
     healthRating: 5,
     personalNotes: 'Two new flower clusters opened today.',
-    aiAnalysis:
-      'The plant appears healthy. Flowering and early fruit set are progressing well.',
+    aiAnalysis: '',
     stage: 'Fruiting',
   },
   {
@@ -102,8 +101,7 @@ const entries: DiaryEntry[] = [
     growthRating: 4,
     healthRating: 5,
     personalNotes: 'Pinched two tips for pasta tonight.',
-    aiAnalysis:
-      'The plant is progressing well. Regular harvesting will encourage a fuller shape.',
+    aiAnalysis: '',
     stage: 'Vegetative',
   },
   {
@@ -122,8 +120,7 @@ const entries: DiaryEntry[] = [
     growthRating: 3,
     healthRating: 3,
     personalNotes: 'Lower leaves feel softer after rain.',
-    aiAnalysis:
-      'Growth is slightly slower than expected. Let the top layer dry and check for drainage around the root zone.',
+    aiAnalysis: '',
     stage: 'Flowering',
   },
   {
@@ -142,8 +139,7 @@ const entries: DiaryEntry[] = [
     growthRating: 4,
     healthRating: 5,
     personalNotes: 'Added a taller support stake.',
-    aiAnalysis:
-      'The plant appears healthy. Support is well timed for the next growth phase.',
+    aiAnalysis: '',
     stage: 'Flowering',
   },
 ];

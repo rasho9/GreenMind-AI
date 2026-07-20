@@ -73,6 +73,7 @@ export function GreenMindAssistantPage() {
       prompt: string,
       assistantMessageId: string,
       attachment?: ComposerAttachment,
+      history: ChatMessageType[] = [],
     ) => {
       setIsStreaming(true);
       let streamedContent = '';
@@ -81,6 +82,12 @@ export function GreenMindAssistantPage() {
           message: prompt,
           context,
           attachments: attachment ? [attachment] : undefined,
+          history: history
+            .filter((message) => !message.isStreaming && message.content.trim())
+            .map((message) => ({
+              role: message.role,
+              content: message.content,
+            })),
           conversationId,
         })) {
           if (chunk.type === 'text') {
@@ -104,6 +111,7 @@ export function GreenMindAssistantPage() {
             : 'I could not prepare a garden response right now. Please try again.';
         updateMessage(conversationId, assistantMessageId, {
           content: message,
+          error: message,
           isStreaming: false,
         });
         setNotice(message);
@@ -118,6 +126,7 @@ export function GreenMindAssistantPage() {
     async (prompt: string, attachment?: ComposerAttachment) => {
       const conversation =
         activeConversation ?? createConversation(conversationTitle(prompt));
+      const history = activeConversation?.messages ?? [];
       const now = new Date().toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
@@ -145,6 +154,7 @@ export function GreenMindAssistantPage() {
         prompt,
         assistantMessage.id,
         attachment,
+        history,
       );
     },
     [activeConversation, addMessage, createConversation, streamResponse],
@@ -160,12 +170,11 @@ export function GreenMindAssistantPage() {
       .reverse()
       .find((item) => item.role === 'user');
     if (!precedingUserMessage) return;
-    setNotice(
-      'Regenerating the same structured answer with your current context.',
-    );
+    setNotice('Regenerating this answer with your current garden context.');
     updateMessage(activeConversation.id, message.id, {
       content: '',
       response: undefined,
+      error: undefined,
       isStreaming: true,
       feedback: undefined,
     });
@@ -173,6 +182,8 @@ export function GreenMindAssistantPage() {
       activeConversation.id,
       precedingUserMessage.content,
       message.id,
+      undefined,
+      activeConversation.messages.slice(0, messageIndex),
     );
   };
 
@@ -341,10 +352,10 @@ export function GreenMindAssistantPage() {
           <Sparkles size={16} />
         </span>
         <span>
-          <b>Future-ready by design.</b> The assistant separates streaming,
-          conversation memory, vision, function calls, weather, location, and
-          workspace context behind typed service contracts—ready for a secure
-          GPT-5.6 integration.
+          <b>Live AI is server-routed.</b> Requests stream through the secure
+          GreenMind API route with conversation history and selected workspace
+          context. If the service is unavailable, GreenMind shows the error
+          instead of generating a local substitute.
         </span>
       </div>
     </div>

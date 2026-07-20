@@ -4,7 +4,7 @@ import type {
   SmartContext,
 } from '../types';
 
-/** Server-side GPT-5.6 adapter contract. Do not expose provider credentials to the browser. */
+/** Server-side OpenAI adapter contract. Provider credentials never reach the browser. */
 export interface GreenMindAssistantClient {
   streamResponse(
     request: AssistantRequest,
@@ -35,5 +35,5 @@ export interface ContextResolver {
   getContext(): Promise<SmartContext[]>;
 }
 
-// Planned adapters: OpenAI GPT-5.6, streaming, conversation memory, vision, weather, location,
-// and function calling. Each adapter maps to the types above before React receives its result.
+// Streaming, memory, vision, weather, location, and function-calling adapters map to these
+// contracts before React receives provider data.

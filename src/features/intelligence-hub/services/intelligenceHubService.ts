@@ -46,8 +46,8 @@ function healthLevel(
 }
 
 /**
- * Stable local aggregator. It reads existing module state and combines it with clearly marked
- * weather fixtures; no random recommendations or hidden remote calls occur in the client.
+ * Aggregates the connected workspace. In live mode weather is authoritative:
+ * provider errors propagate to the UI rather than being disguised as fixture data.
  */
 export const intelligenceHubService = {
   async getSnapshot(
@@ -84,9 +84,7 @@ export const intelligenceHubService = {
         18,
     );
     const liveWeather = clientEnvironment.liveServicesEnabled
-      ? await weatherClient
-          .getForecast(location.latitude, location.longitude)
-          .catch(() => undefined)
+      ? await weatherClient.getForecast(location.latitude, location.longitude)
       : undefined;
     const fallbackTemperature =
       location.city === 'Dubai'
@@ -108,9 +106,13 @@ export const intelligenceHubService = {
             : 68;
     const fallbackRainfall =
       location.city === 'Dubai' ? 0 : location.city === 'Gilgit' ? 4 : 18;
-    const temperature = liveWeather?.current.temperature ?? fallbackTemperature;
-    const humidity = liveWeather?.current.humidity ?? fallbackHumidity;
-    const rainfall = liveWeather?.current.rainfall ?? fallbackRainfall;
+    // Fixtures exist only for an explicitly disabled local/demo integration.
+    // `liveWeather` is required whenever the live-services flag is enabled.
+    const temperature = liveWeather
+      ? liveWeather.current.temperature
+      : fallbackTemperature;
+    const humidity = liveWeather ? liveWeather.current.humidity : fallbackHumidity;
+    const rainfall = liveWeather ? liveWeather.current.rainfall : fallbackRainfall;
     const tomato =
       diary.plants.find((plant) => plant.id === 'tomato') ?? diary.plants[0];
 

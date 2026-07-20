@@ -18,9 +18,10 @@ export async function buildRecommendationSignals(
 ): Promise<RecommendationSignals> {
   const weather =
     environment.latitude !== undefined && environment.longitude !== undefined
-      ? await weatherClient
-          .getForecast(environment.latitude, environment.longitude)
-          .catch(() => undefined)
+      ? await weatherClient.getForecast(
+          environment.latitude,
+          environment.longitude,
+        )
       : undefined;
   return { environment, weather, candidatePlants: candidates };
 }

@@ -1,62 +1,5 @@
 import { create } from 'zustand';
-import { assistantSeedResponse } from '../services/assistantService';
 import type { AssistantFeedback, ChatMessage, Conversation } from '../types';
-
-const initialConversations: Conversation[] = [
-  {
-    id: 'tomato-leaves',
-    title: 'Tomato leaves after humid weather',
-    updatedAt: 'Today',
-    pinned: true,
-    favorite: true,
-    messages: [
-      {
-        id: 'tomato-question',
-        role: 'user',
-        content:
-          'My tomato leaves are yellow after the humid weather. What should I check first?',
-        createdAt: '09:42',
-      },
-      {
-        id: 'tomato-answer',
-        role: 'assistant',
-        content: assistantSeedResponse.summary,
-        response: assistantSeedResponse,
-        createdAt: '09:42',
-      },
-    ],
-  },
-  {
-    id: 'balcony-plan',
-    title: 'Balcony planting plan for July',
-    updatedAt: 'Yesterday',
-    pinned: true,
-    favorite: false,
-    messages: [
-      {
-        id: 'balcony-question',
-        role: 'user',
-        content: 'Recommend beginner-friendly plants for my balcony.',
-        createdAt: '17:20',
-      },
-      {
-        id: 'balcony-answer',
-        role: 'assistant',
-        content:
-          'A balcony plan can balance sunlight, container size, and your available care time.',
-        createdAt: '17:20',
-      },
-    ],
-  },
-  {
-    id: 'basil-care',
-    title: 'Keeping basil productive indoors',
-    updatedAt: '12 Jul',
-    pinned: false,
-    favorite: false,
-    messages: [],
-  },
-];
 
 type AssistantState = {
   conversations: Conversation[];
@@ -82,7 +25,7 @@ type AssistantState = {
 
 /** Session-level AI workspace state; connect this to authenticated conversation storage later. */
 export const useAssistantStore = create<AssistantState>((set) => ({
-  conversations: initialConversations,
+  conversations: [],
   activeConversationId: null,
   setActiveConversation: (id) => set({ activeConversationId: id }),
   createConversation: (title) => {

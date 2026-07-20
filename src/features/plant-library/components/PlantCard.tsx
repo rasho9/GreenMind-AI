@@ -50,9 +50,15 @@ export function PlantCard({
                 {plant.scientificName}
               </p>
             </div>
-            <Badge className="shrink-0 bg-brand-soft text-brand-dark">
-              {plant.suitability}%
-            </Badge>
+            {plant.source === 'provider' ? (
+              <Badge className="shrink-0 bg-brand-soft text-brand-dark">
+                Live data
+              </Badge>
+            ) : (
+              <Badge className="shrink-0 bg-brand-soft text-brand-dark">
+                {plant.suitability}%
+              </Badge>
+            )}
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
             <span

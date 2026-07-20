@@ -21,4 +21,14 @@ export const plantClient = {
       }),
     );
   },
+  getById(id: string, signal?: AbortSignal) {
+    const normalizedId = id.trim();
+    const key = `plant:${normalizedId}`;
+    return requestCache.getOrLoad(key, PLANT_TTL_MS, () =>
+      apiClient.request<PlantProfile>(
+        `/api/plants/${encodeURIComponent(normalizedId)}`,
+        { timeoutMs: 12_000, retryCount: 1, signal },
+      ),
+    );
+  },
 };

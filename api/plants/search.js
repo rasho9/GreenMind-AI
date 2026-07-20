@@ -5,27 +5,7 @@ import {
   methodNotAllowed,
   sendJson,
 } from '../_lib/http.js';
-
-function normalizePlant(item) {
-  return {
-    id: String(item.id),
-    commonName: item.common_name ?? 'Unnamed plant',
-    scientificName: item.scientific_name?.[0] ?? 'Scientific name unavailable',
-    imageUrl: item.default_image?.regular_url ?? item.default_image?.thumbnail,
-    idealClimate:
-      item.hardiness?.min && item.hardiness?.max
-        ? `Hardiness zones ${item.hardiness.min}-${item.hardiness.max}`
-        : undefined,
-    waterRequirement: item.watering,
-    sunlight: Array.isArray(item.sunlight)
-      ? item.sunlight.join(', ')
-      : undefined,
-    growthDifficulty: item.care_level,
-    diseases: [],
-    medicines: [],
-    companionPlants: [],
-  };
-}
+import { normalizePlant } from '../_lib/plants.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);

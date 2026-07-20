@@ -35,10 +35,12 @@ export function DiaryEntryCard({
             <p className="mt-3 line-clamp-2 text-[11px] leading-5 text-muted">
               {entry.personalNotes}
             </p>
-            <p className="mt-3 flex items-center gap-1.5 text-[10px] font-semibold text-[#3b7051]">
-              <Sparkles size={12} />
-              {entry.aiAnalysis}
-            </p>
+            {entry.aiAnalysis && (
+              <p className="mt-3 flex items-center gap-1.5 text-[10px] font-semibold text-[#3b7051]">
+                <Sparkles size={12} />
+                {entry.aiAnalysis}
+              </p>
+            )}
           </div>
         </div>
         <div className="mt-3 flex items-center gap-2 border-t border-line pt-3 text-[10px] text-muted">

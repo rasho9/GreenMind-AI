@@ -5,6 +5,8 @@ export type PlantProfile = {
   scientificName: string;
   imageUrl?: string;
   description?: string;
+  family?: string;
+  origin?: string;
   idealClimate?: string;
   idealTemperature?: string;
   idealSoil?: string;
@@ -14,6 +16,8 @@ export type PlantProfile = {
   growingSeason?: string;
   harvestTime?: string;
   fertilizer?: string;
+  category?: string;
+  indoor?: boolean;
   diseases: string[];
   medicines: string[];
   growthDifficulty?: string;

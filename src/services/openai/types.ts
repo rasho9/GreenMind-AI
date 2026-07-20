@@ -4,11 +4,29 @@ export type AIContextItem = {
   detail: string;
 };
 
+export type OpenAITask =
+  | 'assistant'
+  | 'recommendations'
+  | 'plant-doctor'
+  | 'diary-analysis';
+
+export type OpenAIConversationTurn = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+export type OpenAIImage = {
+  /** A validated, compressed image data URL. It is only accepted for Plant Doctor. */
+  dataUrl: string;
+};
+
 export type OpenAIStreamRequest = {
   input: string;
-  context: AIContextItem[];
+  context?: AIContextItem[];
   conversationId?: string;
-  attachment?: { name: string; type: string };
+  history?: OpenAIConversationTurn[];
+  images?: OpenAIImage[];
+  task?: OpenAITask;
 };
 
 export type OpenAIStreamEvent =

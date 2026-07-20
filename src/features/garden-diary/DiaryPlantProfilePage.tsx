@@ -39,6 +39,7 @@ export function DiaryPlantProfilePage() {
   const allEntries = useGardenDiaryStore((state) => state.entries);
   const addEntry = useGardenDiaryStore((state) => state.addEntry);
   const [isLogOpen, setLogOpen] = useState(false);
+  const [notice, setNotice] = useState('');
   const plant = plants.find((item) => item.id === id);
   const entries = useMemo(
     () =>
@@ -57,7 +58,15 @@ export function DiaryPlantProfilePage() {
     water: entry.waterGiven,
   }));
   const submitEntry = async (input: DiaryEntryInput) => {
-    addEntry(input, await diaryAnalysisService.analyze(input));
+    try {
+      addEntry(input, await diaryAnalysisService.analyze(input));
+    } catch (error) {
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : 'GreenMind AI could not analyze this observation. Please try again.',
+      );
+    }
   };
   return (
     <div>
@@ -351,11 +360,19 @@ export function DiaryPlantProfilePage() {
               </p>
             </div>
             <p className="emphasis-card-accent mt-5 text-[10px] font-bold">
-              Mock insight · GPT-5.6-ready service
+              Live analysis is created when you save an observation.
             </p>
           </div>
         </Card>
       </section>
+      {notice && (
+        <p
+          role="status"
+          className="status-warning mt-5 rounded-xl px-4 py-3 text-sm leading-6"
+        >
+          {notice}
+        </p>
+      )}
       <Modal
         isOpen={isLogOpen}
         onClose={() => setLogOpen(false)}

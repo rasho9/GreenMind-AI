@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -33,11 +33,14 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Badge, Button, Card, SectionHeader } from '@/components/ui';
+import { AsyncState, Badge, Button, Card, SectionHeader, Skeleton } from '@/components/ui';
+import { clientEnvironment } from '@/services/platform';
+import { plantClient } from '@/services/plants';
 import { PlantComparison, PlantVisual } from './components';
 import {
   plantCatalog,
   plantLibraryService,
+  providerPlantToLibraryPlant,
 } from './services/plantLibraryService';
 import { usePlantLibraryStore } from './store/usePlantLibraryStore';
 import type { Plant } from './types';
@@ -75,7 +78,10 @@ const detailFields: Array<{
 
 export function PlantDetailsPage() {
   const { id } = useParams();
-  const plant = id ? plantLibraryService.getById(id) : undefined;
+  const providerId = id?.match(/^provider-(\d+)$/)?.[1];
+  const [providerPlant, setProviderPlant] = useState<Plant | null>(null);
+  const [providerError, setProviderError] = useState('');
+  const [isProviderLoading, setIsProviderLoading] = useState(Boolean(providerId));
   const favorites = usePlantLibraryStore((state) => state.favorites);
   const bookmarks = usePlantLibraryStore((state) => state.bookmarks);
   const compareIds = usePlantLibraryStore((state) => state.compareIds);
@@ -84,12 +90,75 @@ export function PlantDetailsPage() {
   const toggleCompare = usePlantLibraryStore((state) => state.toggleCompare);
   const markViewed = usePlantLibraryStore((state) => state.markViewed);
   const clearCompare = usePlantLibraryStore((state) => state.clearCompare);
+
+  useEffect(() => {
+    if (!providerId) return;
+    if (!clientEnvironment.liveServicesEnabled) {
+      setProviderError(
+        'Live plant details are unavailable because live services are disabled.',
+      );
+      setIsProviderLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setIsProviderLoading(true);
+    setProviderError('');
+    void plantClient
+      .getById(providerId, controller.signal)
+      .then((profile) => {
+        if (!controller.signal.aborted) {
+          setProviderPlant(providerPlantToLibraryPlant(profile));
+        }
+      })
+      .catch((error: unknown) =>
+        !controller.signal.aborted &&
+        setProviderError(
+          error instanceof Error
+            ? error.message
+            : 'Live plant details could not be retrieved. Please try again.',
+        ),
+      )
+      .finally(() => {
+        if (!controller.signal.aborted) setIsProviderLoading(false);
+      });
+    return () => controller.abort();
+  }, [providerId]);
+
+  const plant = providerId
+    ? providerPlant ?? undefined
+    : id
+      ? plantLibraryService.getById(id)
+      : undefined;
   useEffect(() => {
     if (plant) markViewed(plant.id);
   }, [markViewed, plant]);
+  if (isProviderLoading) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-[420px]" />
+        <div className="grid gap-5 xl:grid-cols-2">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
+        </div>
+      </div>
+    );
+  }
+  if (providerError) {
+    return (
+      <AsyncState
+        title="Live plant details are unavailable"
+        description={providerError}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
   if (!plant) return <Navigate to="/plant-library" replace />;
   const compared = compareIds.includes(plant.id);
-  const comparePlants = plantCatalog.filter((item) =>
+  const comparePlants = [
+    ...(plant.source === 'provider' ? [plant] : []),
+    ...plantCatalog,
+  ].filter((item) =>
     compareIds.includes(item.id),
   );
   return (
@@ -106,10 +175,14 @@ export function PlantDetailsPage() {
           <PlantVisual plant={plant} large />
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge className="bg-brand text-white">Plant profile</Badge>
-              <span className="rounded-lg bg-white/65 px-2.5 py-1.5 text-xs font-bold text-brand-dark">
-                {plant.suitability}% suitability
-              </span>
+              <Badge className="bg-brand text-white">
+                {plant.source === 'provider' ? 'Live provider record' : 'Plant profile'}
+              </Badge>
+              {plant.source !== 'provider' && (
+                <span className="rounded-lg bg-white/65 px-2.5 py-1.5 text-xs font-bold text-brand-dark">
+                  {plant.suitability}% suitability
+                </span>
+              )}
             </div>
             <h1 className="mt-4 text-3xl font-extrabold tracking-[-0.06em] sm:text-[38px]">
               {plant.name}
@@ -208,24 +281,29 @@ export function PlantDetailsPage() {
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-[#b9ddc4]">
                 <BrainCircuit size={17} />
-                GPT-5.6 Analysis
+                {plant.source === 'provider' ? 'Live provider data' : 'GPT-5.6 Analysis'}
               </span>
-              <span className="grid size-12 place-items-center rounded-full border-4 border-[#7ab68c] text-sm font-extrabold">
-                {plant.successRate}%
-              </span>
+              {plant.source !== 'provider' && (
+                <span className="grid size-12 place-items-center rounded-full border-4 border-[#7ab68c] text-sm font-extrabold">
+                  {plant.successRate}%
+                </span>
+              )}
             </div>
             <h2 className="mt-5 text-xl font-extrabold tracking-[-0.045em]">
-              A strong fit for warm, bright growing.
+              {plant.source === 'provider'
+                ? 'A connected plant record, ready for your garden.'
+                : 'A strong fit for warm, bright growing.'}
             </h2>
             <p className="mt-3 text-sm leading-6 text-white/78">
-              This plant grows best in {plant.climate.toLowerCase()} conditions
-              and is recommended for {plant.countries[0]}. Its current care
-              profile stays approachable at an {plant.difficulty.toLowerCase()}{' '}
-              maintenance level.
+              {plant.source === 'provider'
+                ? 'Care fields below are supplied by the connected plant-data provider. GreenMind does not generate a suitability score for an unscored provider record.'
+                : `This plant grows best in ${plant.climate.toLowerCase()} conditions and is recommended for ${plant.countries[0]}. Its current care profile stays approachable at an ${plant.difficulty.toLowerCase()} maintenance level.`}
             </p>
             <div className="mt-5 space-y-3 border-t border-white/10 pt-4 text-xs">
               <AiRow label="Best planting window" value={plant.season} />
-              <AiRow label="Success rate" value={`${plant.successRate}%`} />
+              {plant.source !== 'provider' && (
+                <AiRow label="Success rate" value={`${plant.successRate}%`} />
+              )}
               <AiRow label="Maintenance" value={plant.difficulty} />
             </div>
           </div>

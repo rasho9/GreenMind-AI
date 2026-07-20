@@ -1,191 +1,83 @@
 import { Flower2, Leaf, Salad, Sprout } from 'lucide-react';
+import { openAIClient } from '@/services/openai';
+import { clientRateLimiter } from '@/services/security';
+import { ProviderError } from '@/services/utils';
 import type {
   PlantRecommendation,
   RecommendationInput,
   RecommendationResult,
   SmartRecommendationInput,
 } from '../types';
-import { clientRateLimiter } from '@/services/security';
 
-const plants: PlantRecommendation[] = [
-  {
-    name: 'Cherry Tomato',
-    botanicalName: 'Solanum lycopersicum',
-    type: 'Vegetable',
-    confidence: 96,
-    difficulty: 'Easy',
-    water: '3-4 times weekly',
-    sunlight: '6-8 hours',
-    growthTime: '60-75 days',
-    growthSpeed: 'Fast',
-    expectedHeight: '90-150 cm',
-    temperature: '18-32 C',
-    humidity: '50-70%',
-    soil: 'Rich, well-draining mix',
-    bestSeason: 'Spring to summer',
-    harvestTime: 'Mid season',
-    yield: '3-5 kg / plant',
-    benefits: ['Fresh food', 'High container yield', 'Pollinator friendly'],
-    why: 'A remarkably reliable match for bright conditions, warm weather, and compact growing spaces. Its compact habit makes a high return feel achievable.',
-    pros: ['Productive in containers', 'Easy to prune', 'Long harvest window'],
-    challenges: ['Needs a support stake', 'Keep leaves dry when watering'],
-    careTip:
-      'Water at the roots in the early morning and add a simple stake before the first heavy fruit set.',
-    visual: 'tomato',
-    icon: Salad,
-  },
-  {
-    name: 'Genovese Basil',
-    botanicalName: 'Ocimum basilicum',
-    type: 'Herb',
-    confidence: 93,
-    difficulty: 'Easy',
-    water: '2-3 times weekly',
-    sunlight: '5-6 hours',
-    growthTime: '30-45 days',
-    growthSpeed: 'Very fast',
-    expectedHeight: '35-60 cm',
-    temperature: '20-32 C',
-    humidity: '45-70%',
-    soil: 'Loose, compost-rich mix',
-    bestSeason: 'Spring to early autumn',
-    harvestTime: 'Ongoing',
-    yield: '30-40 cuttings',
-    benefits: ['Culinary herb', 'Compact growth', 'Companion planting'],
-    why: 'Thrives in warm, sunny spaces and pairs beautifully with your top pick.',
-    pros: ['Quick harvests', 'Fragrant and useful', 'Great in small pots'],
-    challenges: ['Bolts in intense heat', 'Needs regular pinching'],
-    careTip:
-      'Pinch just above a leaf pair often for a fuller, more productive plant.',
-    visual: 'basil',
-    icon: Sprout,
-  },
-  {
-    name: 'Sweet Pepper',
-    botanicalName: 'Capsicum annuum',
-    type: 'Vegetable',
-    confidence: 89,
-    difficulty: 'Moderate',
-    water: '2-3 times weekly',
-    sunlight: '6-8 hours',
-    growthTime: '70-90 days',
-    growthSpeed: 'Steady',
-    expectedHeight: '45-75 cm',
-    temperature: '20-30 C',
-    humidity: '45-65%',
-    soil: 'Fertile, airy loam',
-    bestSeason: 'Late spring to summer',
-    harvestTime: 'Late season',
-    yield: '8-12 fruits',
-    benefits: ['Nutritious food', 'Long picking season', 'Colorful produce'],
-    why: 'A rewarding follow-on crop for your climate with measured watering.',
-    pros: [
-      'Reliable warm-weather crop',
-      'Compact varieties available',
-      'High flavor',
-    ],
-    challenges: ['Slower to mature', 'Sensitive to overwatering'],
-    careTip: 'Feed lightly after flowering to support a steady fruit set.',
-    visual: 'pepper',
-    icon: Leaf,
-  },
-  {
-    name: 'French Marigold',
-    botanicalName: 'Tagetes patula',
-    type: 'Flower',
-    confidence: 86,
-    difficulty: 'Easy',
-    water: '1-2 times weekly',
-    sunlight: '6+ hours',
-    growthTime: '45-60 days',
-    growthSpeed: 'Fast',
-    expectedHeight: '20-35 cm',
-    temperature: '18-32 C',
-    humidity: '35-65%',
-    soil: 'Average, free-draining soil',
-    bestSeason: 'Spring through autumn',
-    harvestTime: 'Blooming',
-    yield: 'Continuous blooms',
-    benefits: ['Decoration', 'Pollinator support', 'Companion flower'],
-    why: 'Adds durable color and helps create a more diverse planting plan.',
-    pros: ['Very forgiving', 'Long flowering period', 'Discourages some pests'],
-    challenges: ['Deadhead regularly', 'Can stretch in shade'],
-    careTip: 'Remove spent blooms weekly to keep new flowers coming.',
-    visual: 'marigold',
-    icon: Flower2,
-  },
-  {
-    name: 'Baby Spinach',
-    botanicalName: 'Spinacia oleracea',
-    type: 'Leafy green',
-    confidence: 84,
-    difficulty: 'Easy',
-    water: '2-3 times weekly',
-    sunlight: '4-5 hours',
-    growthTime: '25-35 days',
-    growthSpeed: 'Very fast',
-    expectedHeight: '15-25 cm',
-    temperature: '10-24 C',
-    humidity: '50-70%',
-    soil: 'Moist, nitrogen-rich soil',
-    bestSeason: 'Autumn to early spring',
-    harvestTime: 'Early season',
-    yield: '0.5-1 kg',
-    benefits: ['Fast food crop', 'Nutrient dense', 'Small-space friendly'],
-    why: 'An efficient, quick harvest that rounds out your garden plan.',
-    pros: [
-      'Harvest in weeks',
-      'Works in shallow containers',
-      'Succession sowing',
-    ],
-    challenges: ['Dislikes peak heat', 'Needs consistent moisture'],
-    careTip: 'Sow in small batches every two weeks for a longer harvest.',
-    visual: 'spinach',
-    icon: Leaf,
-  },
-];
+type GeneratedRecommendation = Omit<PlantRecommendation, 'visual' | 'icon'>;
 
-const mockResult: RecommendationResult = {
-  featured: plants[0],
-  plants,
-  plan: {
-    month: 'July',
-    successRate: 91,
-    planting: [
-      'Plant 2 cherry tomato starts',
-      'Sow basil beside your tomatoes',
-      'Add 3 marigolds at the edge',
-    ],
-    weeklyCare: [
-      'Monday - check moisture at root level',
-      'Wednesday - guide tomato growth',
-      'Saturday - harvest basil tips',
-    ],
-    watering: [
-      'Tomatoes: Mon, Thu, Sat',
-      'Basil: Tue, Fri',
-      'Peppers: Wed, Sun',
-    ],
-    fertilizer: [
-      'Week 2 - balanced organic feed',
-      'Week 5 - tomato-focused potassium feed',
-    ],
-    harvest: [
-      'Basil from 12 August',
-      'Baby spinach from 19 August',
-      'Tomatoes from 8 September',
-    ],
-  },
+type GeneratedResult = {
+  plants: GeneratedRecommendation[];
+  plan: RecommendationResult['plan'];
 };
 
-/** Replace this deterministic fixture with a typed GPT recommendation endpoint later. */
+function parseJson(output: string): unknown {
+  try {
+    return JSON.parse(output) as unknown;
+  } catch {
+    throw new ProviderError(
+      'GreenMind AI returned an unreadable recommendation plan. Please try again.',
+      'INVALID_RESPONSE',
+    );
+  }
+}
+
+function visualFor(plant: GeneratedRecommendation): PlantRecommendation['visual'] {
+  const value = `${plant.name} ${plant.type}`.toLowerCase();
+  if (value.includes('tomato')) return 'tomato';
+  if (value.includes('basil')) return 'basil';
+  if (value.includes('pepper')) return 'pepper';
+  if (value.includes('marigold') || value.includes('flower')) return 'marigold';
+  return 'spinach';
+}
+
+function iconFor(visual: PlantRecommendation['visual']) {
+  if (visual === 'tomato') return Salad;
+  if (visual === 'basil') return Sprout;
+  if (visual === 'marigold') return Flower2;
+  return Leaf;
+}
+
+function isGeneratedResult(value: unknown): value is GeneratedResult {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<GeneratedResult>;
+  return (
+    Array.isArray(candidate.plants) &&
+    candidate.plants.length >= 1 &&
+    Boolean(candidate.plan) &&
+    typeof candidate.plan === 'object'
+  );
+}
+
+function normalizeResult(value: unknown): RecommendationResult {
+  if (!isGeneratedResult(value)) {
+    throw new ProviderError(
+      'GreenMind AI returned an incomplete recommendation plan. Please try again.',
+      'INVALID_RESPONSE',
+    );
+  }
+  const plants = value.plants.map((plant) => {
+    const visual = visualFor(plant);
+    return { ...plant, visual, icon: iconFor(visual) };
+  });
+  return { featured: plants[0], plants, plan: value.plan };
+}
+
+/** Generates a validated, structured plan through the secure OpenAI server route. */
 export const recommendationService = {
   async generate(
     profile: RecommendationInput | SmartRecommendationInput,
   ): Promise<RecommendationResult> {
     clientRateLimiter.consume('recommendations', 8, 60_000);
-    void profile;
-    await new Promise((resolve) => window.setTimeout(resolve, 1150));
-    return mockResult;
+    const output = await openAIClient.complete({
+      task: 'recommendations',
+      input: `Create 4 to 6 suitable plant recommendations and a practical garden plan for this environment. Use only the information supplied below.\n\n${JSON.stringify(profile)}`,
+    });
+    return normalizeResult(parseJson(output));
   },
 };

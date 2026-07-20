@@ -10,12 +10,14 @@ export function LibrarySearch({
   suggestions,
   onSelect,
   onAiSearch,
+  isAiLoading = false,
 }: {
   query: string;
   onQueryChange: (value: string) => void;
   suggestions: Plant[];
   onSelect: (plant: Plant) => void;
   onAiSearch: () => void;
+  isAiLoading?: boolean;
 }) {
   const { register } = useForm<SearchValues>({ defaultValues: { query } });
   return (
@@ -39,10 +41,12 @@ export function LibrarySearch({
         <button
           type="button"
           onClick={onAiSearch}
-          className="focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#183f2b] px-4 text-xs font-bold text-white shadow-[0_8px_18px_rgb(18_62_42_/_0.14)] transition-all hover:-translate-y-0.5 hover:bg-[#123522]"
+          disabled={isAiLoading}
+          className="focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#183f2b] px-4 text-xs font-bold text-white shadow-[0_8px_18px_rgb(18_62_42_/_0.14)] transition-all hover:-translate-y-0.5 hover:bg-[#123522] disabled:cursor-wait disabled:opacity-75"
         >
           <Bot size={16} />
-          AI Search <Sparkles size={13} className="text-[#b7e5c4]" />
+          {isAiLoading ? 'Analyzing…' : 'AI Search'}{' '}
+          <Sparkles size={13} className="text-[#b7e5c4]" />
         </button>
       </div>
       {query && suggestions.length > 0 && (

@@ -1,5 +1,69 @@
 import { Flower2, Leaf, Salad, Sprout, Trees } from 'lucide-react';
+import type { PlantProfile } from '@/services/plants/types';
 import type { Plant, PlantFilters } from '../types';
+
+const providerUnavailable = 'Not supplied by the plant data provider.';
+
+function providerDifficulty(value?: string): Plant['difficulty'] {
+  const normalized = value?.toLowerCase() ?? '';
+  if (normalized.includes('easy') || normalized.includes('low')) return 'Easy';
+  if (normalized.includes('hard') || normalized.includes('high')) return 'Advanced';
+  return 'Moderate';
+}
+
+function providerVisual(name: string): Plant['visual'] {
+  const normalized = name.toLowerCase();
+  if (normalized.includes('tomato')) return 'tomato';
+  if (normalized.includes('basil')) return 'basil';
+  if (normalized.includes('jasmine')) return 'jasmine';
+  if (normalized.includes('lemon')) return 'lemon';
+  if (normalized.includes('aloe')) return 'aloe';
+  return 'snake';
+}
+
+/** Adapts a live Perenual record without fabricating care, success, or AI claims. */
+export function providerPlantToLibraryPlant(profile: PlantProfile): Plant {
+  const visual = providerVisual(profile.commonName);
+  const careNote = profile.description ?? providerUnavailable;
+  return {
+    id: `provider-${profile.id}`,
+    providerId: profile.id,
+    source: 'provider',
+    name: profile.commonName,
+    scientificName: profile.scientificName,
+    category: profile.category ?? (profile.indoor ? 'Indoor plant' : 'Plant'),
+    suitability: 0,
+    difficulty: providerDifficulty(profile.growthDifficulty),
+    description: careNote,
+    imageUrl: profile.imageUrl,
+    visual,
+    icon: Leaf,
+    family: profile.family ?? providerUnavailable,
+    origin: profile.origin ?? providerUnavailable,
+    climate: profile.idealClimate ?? providerUnavailable,
+    countries: [],
+    season: profile.growingSeason ?? providerUnavailable,
+    harvest: profile.harvestTime ?? providerUnavailable,
+    water: profile.waterRequirement ?? providerUnavailable,
+    sunlight: profile.sunlight ?? providerUnavailable,
+    soil: profile.idealSoil ?? providerUnavailable,
+    temperature: profile.idealTemperature ?? providerUnavailable,
+    humidity: profile.humidity ?? providerUnavailable,
+    fertilizer: profile.fertilizer ?? providerUnavailable,
+    diseases: profile.diseases,
+    treatment: profile.medicines.join(', ') || providerUnavailable,
+    pruning: providerUnavailable,
+    companions: profile.companionPlants,
+    avoid: [],
+    yield: providerUnavailable,
+    aiTip: providerUnavailable,
+    facts: [],
+    successRate: 0,
+    growthStages: [],
+    growthTrend: [],
+    waterSchedule: [],
+  };
+}
 
 export const plantCatalog: Plant[] = [
   {

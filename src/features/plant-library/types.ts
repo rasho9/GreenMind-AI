@@ -4,12 +4,15 @@ export type PlantDifficulty = 'Easy' | 'Moderate' | 'Advanced';
 
 export type Plant = {
   id: string;
+  providerId?: string;
+  source?: 'catalog' | 'provider';
   name: string;
   scientificName: string;
   category: string;
   suitability: number;
   difficulty: PlantDifficulty;
   description: string;
+  imageUrl?: string;
   visual: 'tomato' | 'basil' | 'jasmine' | 'lemon' | 'aloe' | 'snake';
   icon: LucideIcon;
   family: string;
