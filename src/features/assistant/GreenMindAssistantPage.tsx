@@ -354,8 +354,8 @@ export function GreenMindAssistantPage() {
         <span>
           <b>Live AI is server-routed.</b> Requests stream through the secure
           GreenMind API route with conversation history and selected workspace
-          context. If the service is unavailable, GreenMind shows the error
-          instead of generating a local substitute.
+          context. If the service is unavailable, GreenMind continues with
+          structured local guidance for this demo session.
         </span>
       </div>
     </div>

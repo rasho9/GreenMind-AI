@@ -11,7 +11,7 @@ export type WeatherDay = {
 
 /** Normalized weather model returned by the GreenMind server, not OpenWeather's raw payload. */
 export type WeatherSnapshot = {
-  provider: 'openweather';
+  provider: 'openweather' | 'demo';
   fetchedAt: string;
   current: {
     condition: string;

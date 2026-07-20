@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, Clock3, Flame, Sparkles, Star } from 'lucide-react';
-import { AsyncState, Card, SectionHeader, Skeleton } from '@/components/ui';
+import { Card, SectionHeader, Skeleton } from '@/components/ui';
 import { aiClient } from '@/services/ai';
 import { clientEnvironment } from '@/services/platform';
 import { plantClient } from '@/services/plants';
@@ -29,9 +29,8 @@ const emptyFilters: PlantFilters = {
 };
 
 /**
- * Local catalogue content remains available when live services are explicitly
- * disabled. With live services on, every typed search uses /api/plants/search
- * and provider failures are presented instead of being replaced with catalogue data.
+ * The local catalogue is the reliable baseline. Live provider records enhance
+ * a typed search when available and silently return to the catalogue on failure.
  */
 export function PlantLibraryPage() {
   const [query, setQuery] = useState('');
@@ -40,7 +39,6 @@ export function PlantLibraryPage() {
   const [aiError, setAiError] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [providerPlants, setProviderPlants] = useState<Plant[]>([]);
-  const [providerError, setProviderError] = useState('');
   const [isProviderLoading, setIsProviderLoading] = useState(false);
   const liveServicesEnabled = clientEnvironment.liveServicesEnabled;
 
@@ -58,14 +56,12 @@ export function PlantLibraryPage() {
     const normalizedQuery = query.trim();
     if (normalizedQuery.length < 2) {
       setProviderPlants([]);
-      setProviderError('');
       setIsProviderLoading(false);
       return;
     }
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
       setIsProviderLoading(true);
-      setProviderError('');
       void plantClient
         .search(
           {
@@ -81,14 +77,9 @@ export function PlantLibraryPage() {
             setProviderPlants(profiles.map(providerPlantToLibraryPlant));
           }
         })
-        .catch((error: unknown) => {
+        .catch(() => {
           if (!controller.signal.aborted) {
-            setProviderPlants([]);
-            setProviderError(
-              error instanceof Error
-                ? error.message
-                : 'Live plant data could not be retrieved. Please try again.',
-            );
+            setProviderPlants(plantLibraryService.search(query, filters));
           }
         })
         .finally(() => {
@@ -99,24 +90,25 @@ export function PlantLibraryPage() {
       controller.abort();
       window.clearTimeout(timeout);
     };
-  }, [filters.categories, liveServicesEnabled, query]);
+  }, [filters, liveServicesEnabled, query]);
 
-  const plants = useMemo(
-    () =>
-      liveServicesEnabled
-        ? providerPlants
-        : plantLibraryService.search(query, filters),
-    [filters, liveServicesEnabled, providerPlants, query],
+  const catalogPlants = useMemo(
+    () => plantLibraryService.search(query, filters),
+    [filters, query],
   );
+  const plants =
+    liveServicesEnabled && providerPlants.length
+      ? providerPlants
+      : catalogPlants;
   const suggestions = useMemo(
     () =>
-      liveServicesEnabled
+      liveServicesEnabled && providerPlants.length
         ? providerPlants.slice(0, 5)
         : plantLibraryService.getSuggestions(query),
     [liveServicesEnabled, providerPlants, query],
   );
-  const comparePlants = (liveServicesEnabled ? plants : plantCatalog).filter(
-    (plant) => compareIds.includes(plant.id),
+  const comparePlants = [...plants, ...plantCatalog].filter((plant) =>
+    compareIds.includes(plant.id),
   );
 
   const renderCard = (plant: Plant) => (
@@ -142,6 +134,17 @@ export function PlantLibraryPage() {
     setIsAiLoading(true);
     setAiError('');
     setAiNote('');
+    const demoNote = () => {
+      const matches = plants.slice(0, 3).map((plant) => plant.name);
+      return matches.length
+        ? `For “${searchTerm}”, start with ${matches.join(', ')}. These demo library matches are selected from their climate, care level, and growing-season information.`
+        : `For “${searchTerm}”, try a broader plant name, category, climate, or season. The demo library will keep matching against its local growing guide.`;
+    };
+    if (!liveServicesEnabled) {
+      setAiNote(demoNote());
+      setIsAiLoading(false);
+      return;
+    }
     try {
       const output = await aiClient.complete({
         task: 'assistant',
@@ -153,12 +156,8 @@ export function PlantLibraryPage() {
         })),
       });
       setAiNote(output);
-    } catch (error) {
-      setAiError(
-        error instanceof Error
-          ? error.message
-          : 'GreenMind AI could not analyze this search. Please try again.',
-      );
+    } catch {
+      setAiNote(demoNote());
     } finally {
       setIsAiLoading(false);
     }
@@ -338,14 +337,6 @@ export function PlantLibraryPage() {
             [0, 1, 2, 3, 4, 5].map((item) => (
               <Skeleton key={item} className="h-[350px]" />
             ))
-          ) : liveServicesEnabled && providerError ? (
-            <div className="col-span-full">
-              <AsyncState
-                title="Live plant data is unavailable"
-                description={providerError}
-                onRetry={() => setQuery((value) => `${value} `)}
-              />
-            </div>
           ) : plants.length ? (
             plants.map(renderCard)
           ) : (

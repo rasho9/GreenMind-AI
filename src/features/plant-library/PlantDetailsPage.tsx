@@ -33,14 +33,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  AsyncState,
-  Badge,
-  Button,
-  Card,
-  SectionHeader,
-  Skeleton,
-} from '@/components/ui';
+import { Badge, Button, Card, SectionHeader, Skeleton } from '@/components/ui';
 import { clientEnvironment } from '@/services/platform';
 import { plantClient } from '@/services/plants';
 import { PlantComparison, PlantVisual } from './components';
@@ -87,7 +80,6 @@ export function PlantDetailsPage() {
   const { id } = useParams();
   const providerId = id?.match(/^provider-(\d+)$/)?.[1];
   const [providerPlant, setProviderPlant] = useState<Plant | null>(null);
-  const [providerError, setProviderError] = useState('');
   const [isProviderLoading, setIsProviderLoading] = useState(
     Boolean(providerId),
   );
@@ -102,16 +94,14 @@ export function PlantDetailsPage() {
 
   useEffect(() => {
     if (!providerId) return;
+    const demoPlant = plantCatalog[Number(providerId) % plantCatalog.length];
     if (!clientEnvironment.liveServicesEnabled) {
-      setProviderError(
-        'Live plant details are unavailable because live services are disabled.',
-      );
+      setProviderPlant(demoPlant);
       setIsProviderLoading(false);
       return;
     }
     const controller = new AbortController();
     setIsProviderLoading(true);
-    setProviderError('');
     void plantClient
       .getById(providerId, controller.signal)
       .then((profile) => {
@@ -119,15 +109,7 @@ export function PlantDetailsPage() {
           setProviderPlant(providerPlantToLibraryPlant(profile));
         }
       })
-      .catch(
-        (error: unknown) =>
-          !controller.signal.aborted &&
-          setProviderError(
-            error instanceof Error
-              ? error.message
-              : 'Live plant details could not be retrieved. Please try again.',
-          ),
-      )
+      .catch(() => !controller.signal.aborted && setProviderPlant(demoPlant))
       .finally(() => {
         if (!controller.signal.aborted) setIsProviderLoading(false);
       });
@@ -135,7 +117,7 @@ export function PlantDetailsPage() {
   }, [providerId]);
 
   const plant = providerId
-    ? (providerPlant ?? undefined)
+    ? (providerPlant ?? plantCatalog[Number(providerId) % plantCatalog.length])
     : id
       ? plantLibraryService.getById(id)
       : undefined;
@@ -152,15 +134,6 @@ export function PlantDetailsPage() {
           <Skeleton className="h-80" />
         </div>
       </div>
-    );
-  }
-  if (providerError) {
-    return (
-      <AsyncState
-        title="Live plant details are unavailable"
-        description={providerError}
-        onRetry={() => window.location.reload()}
-      />
     );
   }
   if (!plant) return <Navigate to="/plant-library" replace />;

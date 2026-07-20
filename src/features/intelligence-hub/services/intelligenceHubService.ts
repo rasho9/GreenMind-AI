@@ -4,7 +4,6 @@ import { usePlantLibraryStore } from '@/features/plant-library/store/usePlantLib
 import { usePlantDoctorStore } from '@/features/plant-doctor/store/usePlantDoctorStore';
 import { useRecommendationStore } from '@/features/recommendations/store/useRecommendationStore';
 import { useMarketplaceStore } from '@/features/marketplace/store/useMarketplaceStore';
-import { clientEnvironment } from '@/services/platform';
 import { weatherClient } from '@/services/weather';
 import type { GeocodedPlace } from '@/services/platform/locationService';
 import type { IntelligenceSnapshot, HubLocation } from '../types';
@@ -46,8 +45,8 @@ function healthLevel(
 }
 
 /**
- * Aggregates the connected workspace. In live mode weather is authoritative:
- * provider errors propagate to the UI rather than being disguised as fixture data.
+ * Aggregates the connected workspace. Weather always resolves to a normalized
+ * live or local-demo snapshot so the intelligence workspace remains available.
  */
 export const intelligenceHubService = {
   async getSnapshot(
@@ -83,9 +82,10 @@ export const intelligenceHubService = {
         10 +
         18,
     );
-    const liveWeather = clientEnvironment.liveServicesEnabled
-      ? await weatherClient.getForecast(location.latitude, location.longitude)
-      : undefined;
+    const liveWeather = await weatherClient.getForecast(
+      location.latitude,
+      location.longitude,
+    );
     const fallbackTemperature =
       location.city === 'Dubai'
         ? 39
@@ -106,13 +106,9 @@ export const intelligenceHubService = {
             : 68;
     const fallbackRainfall =
       location.city === 'Dubai' ? 0 : location.city === 'Gilgit' ? 4 : 18;
-    // Fixtures exist only for an explicitly disabled local/demo integration.
-    // `liveWeather` is required whenever the live-services flag is enabled.
-    const temperature = liveWeather
-      ? liveWeather.current.temperature
-      : fallbackTemperature;
-    const humidity = liveWeather ? liveWeather.current.humidity : fallbackHumidity;
-    const rainfall = liveWeather ? liveWeather.current.rainfall : fallbackRainfall;
+    const temperature = liveWeather?.current.temperature ?? fallbackTemperature;
+    const humidity = liveWeather?.current.humidity ?? fallbackHumidity;
+    const rainfall = liveWeather?.current.rainfall ?? fallbackRainfall;
     const tomato =
       diary.plants.find((plant) => plant.id === 'tomato') ?? diary.plants[0];
 

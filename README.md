@@ -2,7 +2,7 @@
 
 GreenMind AI is a premium, connected gardening workspace built for AI Build Week. It brings plant recommendations, garden records, visual plant-health screening, care tasks, proactive intelligence, and a specialist AI assistant into one calm, responsive experience.
 
-> The app starts in a safe structured-demo mode. Set up the server routes described in [API_SETUP.md](API_SETUP.md) to enable live provider data without embedding credentials in the browser.
+> The app starts in a safe, structured Demo Mode. Set up the server routes described in [API_SETUP.md](API_SETUP.md) to enable live provider data without embedding credentials in the browser; provider outages and quota limits automatically return to the same local experience.
 
 ## What it includes
 
@@ -43,14 +43,14 @@ npm run build
 
 Copy [`.env.example`](.env.example) to `.env.local` and configure only public browser values there. Add server-only keys in your deployment host, not Vite.
 
-| Variable                         | Purpose                                                                         |
-| -------------------------------- | ------------------------------------------------------------------------------- |
-| `VITE_API_BASE_URL`              | Optional API base URL for a future GreenMind backend.                           |
-| `VITE_ENABLE_LIVE_SERVICES`      | Enables the production server routes after they are configured.                 |
-| `VITE_MAPTILER_API_KEY`          | Domain-restricted public MapTiler browser token.                                |
-| `VITE_NOMINATIM_BASE_URL`        | Nominatim geocoding base URL.                                                   |
-| `VITE_SESSION_IDLE_TIMEOUT_MS`   | Browser inactivity timeout; the server must independently enforce token expiry. |
-| `VITE_MAX_PLANT_IMAGE_UPLOAD_MB` | Maximum browser-side Plant Doctor image intake size (1–20 MB).                  |
+| Variable                         | Purpose                                                                          |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`              | Optional API base URL for a future GreenMind backend.                            |
+| `VITE_ENABLE_LIVE_SERVICES`      | `false` uses Demo Mode; `true` enables live routes with automatic demo fallback. |
+| `VITE_MAPTILER_API_KEY`          | Domain-restricted public MapTiler browser token.                                 |
+| `VITE_NOMINATIM_BASE_URL`        | Nominatim geocoding base URL.                                                    |
+| `VITE_SESSION_IDLE_TIMEOUT_MS`   | Browser inactivity timeout; the server must independently enforce token expiry.  |
+| `VITE_MAX_PLANT_IMAGE_UPLOAD_MB` | Maximum browser-side Plant Doctor image intake size (1–20 MB).                   |
 
 `GEMINI_API_KEY`, `OPENWEATHER_API_KEY`, and `PERENUAL_API_KEY` belong only in a server environment (for example, Vercel Environment Variables). Do not expose any of them as `VITE_*` variables. See the beginner-friendly [API setup guide](API_SETUP.md) for exact steps, provider limits, tests, and troubleshooting.
 

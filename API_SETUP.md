@@ -14,7 +14,7 @@ Browser UI -> /api/* GreenMind server route -> Provider API
 
 The browser calls typed GreenMind routes. Each route owns its provider key, input validation, rate limit, timeout, and error mapping. Provider secrets are never present in the built frontend bundle.
 
-For local live API testing, run `npx vercel dev` so Vercel serves both Vite and the `api/` server routes. In production, add server variables under **Vercel Project Settings > Environment Variables**, set `VITE_ENABLE_LIVE_SERVICES=true`, and redeploy.
+GreenMind starts in professional Demo Mode with `VITE_ENABLE_LIVE_SERVICES=false`. For local live API testing, run `npx vercel dev` so Vercel serves both Vite and the `api/` server routes. In production, add server variables under **Vercel Project Settings > Environment Variables**, set `VITE_ENABLE_LIVE_SERVICES=true`, and redeploy. If a live provider is missing, rate-limited, or unavailable, the feature returns its structured local demo data without exposing provider errors to users.
 
 <!-- Screenshot placeholder: Vercel environment-variable screen -->
 
@@ -24,16 +24,16 @@ For local live API testing, run `npx vercel dev` so Vercel serves both Vite and 
 2. Add non-`VITE_` values to Vercel or your server host; do not put them in a Vite build file.
 3. Keep `.env*` files out of Git.
 
-| Variable                               | Where it belongs            | Used by                                      |
-| -------------------------------------- | --------------------------- | -------------------------------------------- |
-| `VITE_ENABLE_LIVE_SERVICES`            | Browser build configuration | Enables secure live server calls             |
-| `VITE_MAPTILER_API_KEY`                | Browser build configuration | Domain-restricted MapTiler map token         |
-| `GEMINI_API_KEY`                       | Server only                 | `api/ai/respond.js`                          |
-| `GEMINI_MODEL`                         | Server only                 | Gemini model; defaults to `gemini-2.5-flash` |
-| `OPENWEATHER_API_KEY`                  | Server only                 | `api/weather/forecast.js`                    |
-| `PERENUAL_API_KEY`                     | Server only                 | `api/plants/search.js`                       |
-| `MAPTILER_API_KEY`                     | Server only, optional       | Future server-side map operations            |
-| `PLANT_ID_API_KEY`, `PLANTNET_API_KEY` | Server only, optional       | Future specialist diagnosis adapters         |
+| Variable                               | Where it belongs            | Used by                                           |
+| -------------------------------------- | --------------------------- | ------------------------------------------------- |
+| `VITE_ENABLE_LIVE_SERVICES`            | Browser build configuration | Enables secure live calls; `false` uses Demo Mode |
+| `VITE_MAPTILER_API_KEY`                | Browser build configuration | Domain-restricted MapTiler map token              |
+| `GEMINI_API_KEY`                       | Server only                 | `api/ai/respond.js`                               |
+| `GEMINI_MODEL`                         | Server only                 | Gemini model; defaults to `gemini-2.5-flash`      |
+| `OPENWEATHER_API_KEY`                  | Server only                 | `api/weather/forecast.js`                         |
+| `PERENUAL_API_KEY`                     | Server only                 | `api/plants/search.js`                            |
+| `MAPTILER_API_KEY`                     | Server only, optional       | Future server-side map operations                 |
+| `PLANT_ID_API_KEY`, `PLANTNET_API_KEY` | Server only, optional       | Future specialist diagnosis adapters              |
 
 There is deliberately no `VITE_GEMINI_API_KEY` or `VITE_OPENWEATHER_API_KEY`.
 
@@ -68,7 +68,7 @@ Example stream event:
 data: {"type":"response.output_text.delta","delta":"Water at the soil line..."}
 ```
 
-**Test:** ask GreenMind AI how to water balcony tomatoes. Text should stream into the existing conversation. A missing key produces a clear configuration error; the route never fabricates an answer.
+**Test:** ask GreenMind AI how to water balcony tomatoes. Text should stream into the existing conversation. When the live route cannot be used, the assistant deliberately continues with structured local demo guidance; no provider credential details are exposed.
 
 **Common errors:** `503` means `GEMINI_API_KEY` is missing, `502` means the key/model/account needs checking, and `429` means wait for the rate-limit window. The route never returns the provider key.
 
@@ -91,7 +91,7 @@ GreenMind calls:
 GET /api/weather/forecast?lat=31.5204&lon=74.3587
 ```
 
-**Test:** open Intelligence Hub, select a location, and refresh. A live configuration populates the current weather card and five-day forecast. Invalid or inactive keys return a clear error.
+**Test:** open Intelligence Hub, select a location, and refresh. A live configuration populates the current weather card and five-day forecast. Invalid, inactive, rate-limited, or unavailable providers return the normalized local demo forecast instead.
 
 ## 5. Location and maps
 
@@ -123,7 +123,7 @@ Plant Doctor sends validated images to the secure Gemini route for live structur
 3. Send a short garden question and confirm streamed text from `/api/ai/respond`.
 4. Check a known coordinate in Intelligence Hub and confirm live weather data.
 5. Search a known plant and verify common/scientific names.
-6. Turn off network and confirm the UI shows its existing offline/retry state.
+6. Turn off network and confirm the AI, weather, plant, and recommendation experiences continue with their structured local demo data.
 
 ## 9. Provider errors and replacements
 

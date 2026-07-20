@@ -1,17 +1,85 @@
 import { apiClient } from '@/services/api';
+import { isDemoMode, withDemoFallback } from '@/services/demo';
 import { requestCache } from '@/services/utils';
-import type { GardeningWeatherAdvice, WeatherSnapshot } from './types';
+import type {
+  GardeningWeatherAdvice,
+  WeatherCondition,
+  WeatherSnapshot,
+} from './types';
 
 const WEATHER_TTL_MS = 10 * 60 * 1_000;
 
-/** Calls the GreenMind server proxy; the OpenWeather key never reaches the browser. */
+function demoDate(offset: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return date.toISOString().slice(0, 10);
+}
+
+/** Deterministic local weather used when live services are disabled or unavailable. */
+export function createDemoWeatherSnapshot(
+  latitude: number,
+  longitude: number,
+): WeatherSnapshot {
+  const isWarm = Math.abs(latitude) < 36;
+  const isCoastalOrHumid =
+    Math.abs(longitude) > 65 && Math.abs(longitude) < 145;
+  const temperature = isWarm ? 31 : 21;
+  const humidity = isCoastalOrHumid ? 68 : 54;
+  const conditions: WeatherCondition[] = [
+    'cloudy',
+    'sunny',
+    'storm',
+    'rain',
+    'cloudy',
+    'sunny',
+    'sunny',
+  ];
+  return {
+    provider: 'demo',
+    fetchedAt: new Date().toISOString(),
+    current: {
+      condition: humidity >= 65 ? 'Clouds building' : 'Partly cloudy',
+      temperature,
+      feelsLike: temperature + 2,
+      humidity,
+      pressure: 1008,
+      cloudCover: humidity >= 65 ? 58 : 28,
+      rainfall: humidity >= 65 ? 1.4 : 0,
+      rainChance: humidity >= 65 ? 28 : 12,
+      windSpeed: 14,
+      uvIndex: isWarm ? 8 : 5,
+      sunrise: '05:12',
+      sunset: '19:19',
+      alerts: [],
+    },
+    daily: conditions.map((condition, index) => ({
+      date: demoDate(index),
+      condition,
+      high: temperature + [0, 3, 1, -2, -1, 2, 3][index],
+      low: temperature - [7, 6, 5, 8, 8, 6, 5][index],
+      rainChance: [24, 12, 68, 56, 30, 14, 10][index],
+      humidity: Math.max(
+        43,
+        Math.min(86, humidity + [0, -5, 10, 6, 2, -4, -7][index]),
+      ),
+    })),
+  };
+}
+
+/** Calls the server proxy when available and otherwise returns the demo snapshot. */
 export const weatherClient = {
   getForecast(latitude: number, longitude: number, signal?: AbortSignal) {
+    const demoSnapshot = () => createDemoWeatherSnapshot(latitude, longitude);
+    if (isDemoMode()) return Promise.resolve(demoSnapshot());
     const key = `weather:${latitude.toFixed(3)}:${longitude.toFixed(3)}`;
     return requestCache.getOrLoad(key, WEATHER_TTL_MS, () =>
-      apiClient.request<WeatherSnapshot>(
-        `/api/weather/forecast?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`,
-        { timeoutMs: 12_000, retryCount: 2, signal },
+      withDemoFallback(
+        () =>
+          apiClient.request<WeatherSnapshot>(
+            `/api/weather/forecast?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`,
+            { timeoutMs: 12_000, retryCount: 2, signal },
+          ),
+        demoSnapshot,
       ),
     );
   },
