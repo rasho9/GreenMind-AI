@@ -174,9 +174,9 @@ During this project we learned how to:
 
 ---
 
-# 👨‍💻 Team
+# 👨‍💻 Solo
 
-**GreenMind AI Development Team**
+**GreenMind AI Developer**
 
 ---
 
