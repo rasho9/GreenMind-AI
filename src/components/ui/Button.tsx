@@ -25,7 +25,7 @@ export function Button({
     <button
       className={cn(
         'focus-ring inline-flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-control)] font-semibold transition-all duration-200 will-change-transform disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
-        size === 'sm' ? 'h-10 px-3.5 text-base' : 'h-12 px-4.5 text-base',
+        size === 'sm' ? 'h-10 px-3.5 text-sm' : 'h-12 px-4.5 text-sm',
         variant === 'primary' &&
           'bg-success text-white shadow-sm hover:-translate-y-px hover:bg-success-text hover:shadow-md active:translate-y-0 active:scale-[0.985]',
         variant === 'secondary' &&

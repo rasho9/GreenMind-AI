@@ -1,5 +1,5 @@
 import { Flower2, Leaf, Salad, Sprout } from 'lucide-react';
-import { openAIClient } from '@/services/openai';
+import { aiClient } from '@/services/ai';
 import { clientRateLimiter } from '@/services/security';
 import { ProviderError } from '@/services/utils';
 import type {
@@ -27,7 +27,9 @@ function parseJson(output: string): unknown {
   }
 }
 
-function visualFor(plant: GeneratedRecommendation): PlantRecommendation['visual'] {
+function visualFor(
+  plant: GeneratedRecommendation,
+): PlantRecommendation['visual'] {
   const value = `${plant.name} ${plant.type}`.toLowerCase();
   if (value.includes('tomato')) return 'tomato';
   if (value.includes('basil')) return 'basil';
@@ -68,13 +70,13 @@ function normalizeResult(value: unknown): RecommendationResult {
   return { featured: plants[0], plants, plan: value.plan };
 }
 
-/** Generates a validated, structured plan through the secure OpenAI server route. */
+/** Generates a validated, structured plan through the secure GreenMind AI route. */
 export const recommendationService = {
   async generate(
     profile: RecommendationInput | SmartRecommendationInput,
   ): Promise<RecommendationResult> {
     clientRateLimiter.consume('recommendations', 8, 60_000);
-    const output = await openAIClient.complete({
+    const output = await aiClient.complete({
       task: 'recommendations',
       input: `Create 4 to 6 suitable plant recommendations and a practical garden plan for this environment. Use only the information supplied below.\n\n${JSON.stringify(profile)}`,
     });

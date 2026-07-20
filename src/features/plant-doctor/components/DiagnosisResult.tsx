@@ -191,7 +191,7 @@ export function DiagnosisResult({ analysis, onReport }: DiagnosisResultProps) {
             </span>
             <div>
               <p className="text-[15px] font-extrabold tracking-[-0.025em]">
-                GPT-5.6 insights
+                Gemini insights
               </p>
               <p className="mt-1 text-xs text-muted">
                 A provider-neutral narrative field, ready for vision

@@ -1,4 +1,4 @@
-import { openAIClient } from '@/services/openai';
+import { aiClient } from '@/services/ai';
 import { ProviderError } from '@/services/utils';
 import type { DiaryEntryInput, GrowthStage } from '../types';
 
@@ -27,10 +27,10 @@ function parseAnalysis(output: string): DiaryAnalysis {
   }
 }
 
-/** Generates a live, structured observation insight through the secure OpenAI route. */
+/** Generates a live, structured observation insight through the secure GreenMind AI route. */
 export const diaryAnalysisService = {
   async analyze(entry: DiaryEntryInput): Promise<DiaryAnalysis> {
-    const output = await openAIClient.complete({
+    const output = await aiClient.complete({
       task: 'diary-analysis',
       input: `Analyze this garden diary observation. Keep guidance cautious and practical.\n\n${JSON.stringify(entry)}`,
     });

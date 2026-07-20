@@ -4,7 +4,7 @@ import type {
   SmartContext,
 } from '../types';
 
-/** Server-side OpenAI adapter contract. Provider credentials never reach the browser. */
+/** Server-side AI adapter contract. Provider credentials never reach the browser. */
 export interface GreenMindAssistantClient {
   streamResponse(
     request: AssistantRequest,

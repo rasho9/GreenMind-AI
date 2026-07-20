@@ -39,7 +39,7 @@ export function DashboardLayout() {
             connection returns.
           </div>
         )}
-        <main className="mx-auto w-full max-w-[1536px] px-5 py-7 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+        <main className="mx-auto w-full max-w-[1536px] px-5 py-7 sm:px-8 sm:py-8 lg:px-10 lg:py-12">
           <AnimatedWorkspaceOutlet />
           <Footer />
         </main>

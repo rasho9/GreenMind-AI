@@ -7,10 +7,10 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact && (
         <div>
-          <p className="text-[15px] font-extrabold tracking-[-0.055em] text-ink">
+          <p className="brand-title tracking-[-0.035em] text-ink">
             GreenMind AI
           </p>
-          <p className="mt-0.5 text-[10px] font-semibold tracking-[0.04em] text-muted">
+          <p className="brand-subtitle mt-1 font-medium tracking-[0.04em] text-muted">
             Intelligent growing
           </p>
         </div>

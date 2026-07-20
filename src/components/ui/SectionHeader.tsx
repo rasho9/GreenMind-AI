@@ -12,18 +12,18 @@ export function SectionHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
       <div>
         {eyebrow && (
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-success-text">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-success-text">
             {eyebrow}
           </p>
         )}
-        <h2 className="text-xl font-bold tracking-[-0.03em] text-text-primary sm:text-2xl">
+        <h2 className="text-xl font-bold tracking-[-0.03em] text-text-primary">
           {title}
         </h2>
         {description && (
-          <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+          <p className="mt-3 text-sm leading-6 text-muted">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}

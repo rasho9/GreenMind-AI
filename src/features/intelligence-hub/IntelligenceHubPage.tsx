@@ -169,7 +169,7 @@ export function IntelligenceHubPage() {
       </section>
       <div className="mt-8 rounded-[18px] border border-brand/15 bg-brand-soft/34 px-5 py-4 text-xs leading-5 text-brand-dark">
         <b>Future-ready intelligence.</b> Weather, map, location, soil, plant,
-        and GPT-5.6 analysis are separated behind dedicated service contracts;
+        and Gemini analysis are separated behind dedicated service contracts;
         provider data can be added without rewriting this dashboard.
       </div>
     </div>

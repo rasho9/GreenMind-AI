@@ -1,8 +1,7 @@
-import { Readable } from 'node:stream';
+import { GoogleGenAI } from '@google/genai';
 import {
   cleanText,
   enforceRateLimit,
-  fetchWithTimeout,
   methodNotAllowed,
   readJson,
   sendJson,
@@ -77,40 +76,35 @@ const plantSchema = {
   ],
 };
 
-const recommendationFormat = {
-  type: 'json_schema',
-  name: 'greenmind_recommendations',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      plants: { type: 'array', minItems: 4, maxItems: 6, items: plantSchema },
-      plan: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          month: { type: 'string' },
-          successRate: { type: 'number' },
-          planting: stringArray,
-          weeklyCare: stringArray,
-          watering: stringArray,
-          fertilizer: stringArray,
-          harvest: stringArray,
-        },
-        required: [
-          'month',
-          'successRate',
-          'planting',
-          'weeklyCare',
-          'watering',
-          'fertilizer',
-          'harvest',
-        ],
+const recommendationSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    plants: { type: 'array', minItems: 4, maxItems: 6, items: plantSchema },
+    plan: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        month: { type: 'string' },
+        successRate: { type: 'number' },
+        planting: stringArray,
+        weeklyCare: stringArray,
+        watering: stringArray,
+        fertilizer: stringArray,
+        harvest: stringArray,
       },
+      required: [
+        'month',
+        'successRate',
+        'planting',
+        'weeklyCare',
+        'watering',
+        'fertilizer',
+        'harvest',
+      ],
     },
-    required: ['plants', 'plan'],
   },
+  required: ['plants', 'plan'],
 };
 
 const workflowSchema = {
@@ -136,109 +130,99 @@ const workflowSchema = {
   ],
 };
 
-const plantDoctorFormat = {
-  type: 'json_schema',
-  name: 'greenmind_plant_doctor',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      plantName: { type: 'string' },
-      scientificName: { type: 'string' },
-      plantPart: { type: 'string' },
-      diseaseId: { type: 'string' },
-      diseaseName: { type: 'string' },
-      confidence: { type: 'number' },
-      healthScore: { type: 'number' },
-      overallHealth: {
-        type: 'string',
-        enum: ['Excellent', 'Good', 'Average', 'Poor', 'Critical'],
-      },
-      status: { type: 'string', enum: ['Healthy', 'Warning', 'Critical'] },
-      severity: { type: 'string', enum: ['Low', 'Medium', 'High', 'Critical'] },
-      symptoms: stringArray,
-      description: { type: 'string' },
-      possibleCauses: stringArray,
-      treatmentPlan: stringArray,
-      organicTreatment: stringArray,
-      chemicalTreatment: stringArray,
-      preventionTips: stringArray,
-      recoveryTime: { type: 'string' },
-      wateringAdvice: { type: 'string' },
-      sunlightAdvice: { type: 'string' },
-      fertilizerAdvice: { type: 'string' },
-      recoveryPercentage: { type: 'number' },
-      nextInspectionDate: { type: 'string' },
-      gptInsight: { type: 'string' },
-      workflow: workflowSchema,
-      timeline: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            day: { type: 'string' },
-            title: { type: 'string' },
-            detail: { type: 'string' },
-          },
-          required: ['day', 'title', 'detail'],
+const plantDoctorSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    plantName: { type: 'string' },
+    scientificName: { type: 'string' },
+    plantPart: { type: 'string' },
+    diseaseId: { type: 'string' },
+    diseaseName: { type: 'string' },
+    confidence: { type: 'number' },
+    healthScore: { type: 'number' },
+    overallHealth: {
+      type: 'string',
+      enum: ['Excellent', 'Good', 'Average', 'Poor', 'Critical'],
+    },
+    status: { type: 'string', enum: ['Healthy', 'Warning', 'Critical'] },
+    severity: { type: 'string', enum: ['Low', 'Medium', 'High', 'Critical'] },
+    symptoms: stringArray,
+    description: { type: 'string' },
+    possibleCauses: stringArray,
+    treatmentPlan: stringArray,
+    organicTreatment: stringArray,
+    chemicalTreatment: stringArray,
+    preventionTips: stringArray,
+    recoveryTime: { type: 'string' },
+    wateringAdvice: { type: 'string' },
+    sunlightAdvice: { type: 'string' },
+    fertilizerAdvice: { type: 'string' },
+    recoveryPercentage: { type: 'number' },
+    nextInspectionDate: { type: 'string' },
+    gptInsight: { type: 'string' },
+    workflow: workflowSchema,
+    timeline: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          day: { type: 'string' },
+          title: { type: 'string' },
+          detail: { type: 'string' },
         },
+        required: ['day', 'title', 'detail'],
       },
     },
-    required: [
-      'plantName',
-      'scientificName',
-      'plantPart',
-      'diseaseId',
-      'diseaseName',
-      'confidence',
-      'healthScore',
-      'overallHealth',
-      'status',
-      'severity',
-      'symptoms',
-      'description',
-      'possibleCauses',
-      'treatmentPlan',
-      'organicTreatment',
-      'chemicalTreatment',
-      'preventionTips',
-      'recoveryTime',
-      'wateringAdvice',
-      'sunlightAdvice',
-      'fertilizerAdvice',
-      'recoveryPercentage',
-      'nextInspectionDate',
-      'gptInsight',
-      'workflow',
-      'timeline',
-    ],
   },
+  required: [
+    'plantName',
+    'scientificName',
+    'plantPart',
+    'diseaseId',
+    'diseaseName',
+    'confidence',
+    'healthScore',
+    'overallHealth',
+    'status',
+    'severity',
+    'symptoms',
+    'description',
+    'possibleCauses',
+    'treatmentPlan',
+    'organicTreatment',
+    'chemicalTreatment',
+    'preventionTips',
+    'recoveryTime',
+    'wateringAdvice',
+    'sunlightAdvice',
+    'fertilizerAdvice',
+    'recoveryPercentage',
+    'nextInspectionDate',
+    'gptInsight',
+    'workflow',
+    'timeline',
+  ],
 };
 
-const diaryFormat = {
-  type: 'json_schema',
-  name: 'greenmind_diary_analysis',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      message: { type: 'string' },
-      stage: {
-        type: 'string',
-        enum: ['Seedling', 'Vegetative', 'Flowering', 'Fruiting', 'Harvested'],
-      },
+const diarySchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    message: { type: 'string' },
+    stage: {
+      type: 'string',
+      enum: ['Seedling', 'Vegetative', 'Flowering', 'Fruiting', 'Harvested'],
     },
-    required: ['message', 'stage'],
   },
+  required: ['message', 'stage'],
 };
 
-const TASK_FORMATS = {
-  recommendations: recommendationFormat,
-  'plant-doctor': plantDoctorFormat,
-  'diary-analysis': diaryFormat,
+const TASK_SCHEMAS = {
+  recommendations: recommendationSchema,
+  'plant-doctor': plantDoctorSchema,
+  'diary-analysis': diarySchema,
 };
 
 function safeContext(rawContext) {
@@ -272,71 +256,104 @@ function safeImages(rawImages) {
       dataUrl: typeof image?.dataUrl === 'string' ? image.dataUrl : '',
     }))
     .filter((image) => {
-      if (!/^data:image\/(jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(image.dataUrl)) {
+      if (
+        !/^data:image\/(jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(
+          image.dataUrl,
+        )
+      ) {
         return false;
       }
       return Buffer.byteLength(image.dataUrl, 'utf8') <= 3_000_000;
     });
 }
 
-function buildInput({ input, history, context, images }) {
+function buildContents({ input, history, context, images }) {
   const contextText = context.length
     ? `\n\nConnected workspace context (facts only):\n${context
         .map((item) => `- ${item.module}: ${item.label} — ${item.detail}`)
         .join('\n')}`
     : '';
   const currentText = `${input}${contextText}`;
-  const currentContent = images.length
-    ? [
-        { type: 'input_text', text: currentText },
-        ...images.map((image) => ({
-          type: 'input_image',
-          image_url: image.dataUrl,
-          detail: 'high',
-        })),
-      ]
-    : currentText;
+  const currentParts = [
+    { text: currentText },
+    ...images.map((image) => {
+      const [metadata, data] = image.dataUrl.split(',', 2);
+      const mimeType = metadata.match(
+        /^data:(image\/(?:jpeg|png|webp));base64$/i,
+      )?.[1];
+      return { inlineData: { mimeType, data } };
+    }),
+  ];
   return [
-    ...history.map((item) => ({ role: item.role, content: item.content })),
-    { role: 'user', content: currentContent },
+    ...history.map((item) => ({
+      role: item.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: item.content }],
+    })),
+    { role: 'user', parts: currentParts },
   ];
 }
 
-async function getOpenAIError(upstream) {
-  let providerMessage = '';
-  let code = '';
-  try {
-    const payload = await upstream.json();
-    providerMessage = cleanText(payload?.error?.message, 240);
-    code = cleanText(payload?.error?.code, 80);
-  } catch {
-    // A proxy can return non-JSON errors. Use a safe status-specific message below.
+class GeminiTimeoutError extends Error {
+  constructor() {
+    super('The Gemini request timed out.');
+    this.name = 'GeminiTimeoutError';
   }
-  if (upstream.status === 429 && code === 'insufficient_quota') {
-    return 'AI is temporarily unavailable because the connected OpenAI project has no remaining quota or billing capacity. Update billing, then try again.';
+}
+
+function statusFromGeminiError(error) {
+  const status = Number(error?.status ?? error?.code);
+  return Number.isInteger(status) && status >= 400 && status <= 599
+    ? status
+    : 502;
+}
+
+function getGeminiErrorMessage(error) {
+  const status = statusFromGeminiError(error);
+  if (error instanceof GeminiTimeoutError) {
+    return 'GreenMind AI took too long to respond. Please try again.';
   }
-  if (upstream.status === 429) {
+  if (status === 429) {
     return 'GreenMind AI is receiving too many requests right now. Please wait a moment and try again.';
   }
-  if (upstream.status === 401) {
-    return 'The server could not authenticate with OpenAI. Verify the server-side API key and redeploy.';
+  if (status === 401 || status === 400) {
+    return 'The server could not authenticate with Gemini. Verify GEMINI_API_KEY and redeploy.';
   }
-  if (upstream.status === 403) {
-    return 'The configured OpenAI project is not permitted to use this model. Check project permissions and model access.';
+  if (status === 403) {
+    return 'The configured Gemini project is not permitted to use this model. Check project permissions and model access.';
   }
-  if (upstream.status >= 500) {
-    return 'OpenAI is temporarily unavailable. Please try again shortly.';
+  if (status >= 500) {
+    return 'Gemini is temporarily unavailable. Please try again shortly.';
   }
-  return providerMessage || 'OpenAI could not complete this request. Check the selected model and account limits.';
+  return 'Gemini could not complete this request. Check the selected model and account limits.';
+}
+
+function writeSse(res, event) {
+  res.write(`data: ${JSON.stringify(event)}\n\n`);
+}
+
+async function getGeminiStream(request, controller) {
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      controller.abort();
+      reject(new GeminiTimeoutError());
+    }, 45_000);
+  });
+  try {
+    return await Promise.race([request, timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res, ['POST']);
   if (!enforceRateLimit(req, res, 'ai', 12, 60_000)) return;
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return sendJson(res, 503, {
       error: {
-        message: 'AI is not connected. Add OPENAI_API_KEY to the Vercel server environment and redeploy.',
+        message:
+          'AI is not connected. Add GEMINI_API_KEY to the Vercel server environment and redeploy.',
       },
     });
   }
@@ -361,39 +378,30 @@ export default async function handler(req, res) {
         },
       });
     }
-    const requestBody = {
-      model: process.env.OPENAI_MODEL || 'gpt-5.4',
-      stream: true,
-      store: false,
-      instructions: `${GARDENING_INSTRUCTIONS}\n\n${TASK_INSTRUCTIONS[task]}`,
-      input: buildInput({
-        input,
-        history: task === 'assistant' ? safeHistory(body.history) : [],
-        context: safeContext(body.context),
-        images,
-      }),
-      ...(TASK_FORMATS[task]
-        ? { text: { format: TASK_FORMATS[task] } }
-        : {}),
-    };
-    const upstream = await fetchWithTimeout(
-      'https://api.openai.com/v1/responses',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const abortController = new AbortController();
+    const stream = await getGeminiStream(
+      ai.models.generateContentStream({
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        contents: buildContents({
+          input,
+          history: task === 'assistant' ? safeHistory(body.history) : [],
+          context: safeContext(body.context),
+          images,
+        }),
+        config: {
+          systemInstruction: `${GARDENING_INSTRUCTIONS}\n\n${TASK_INSTRUCTIONS[task]}`,
+          abortSignal: abortController.signal,
+          ...(TASK_SCHEMAS[task]
+            ? {
+                responseMimeType: 'application/json',
+                responseJsonSchema: TASK_SCHEMAS[task],
+              }
+            : {}),
         },
-        body: JSON.stringify(requestBody),
-      },
-      45_000,
+      }),
+      abortController,
     );
-    if (!upstream.ok || !upstream.body) {
-      const status = upstream.status === 401 ? 502 : upstream.status;
-      return sendJson(res, status, {
-        error: { message: await getOpenAIError(upstream) },
-      });
-    }
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
@@ -402,16 +410,39 @@ export default async function handler(req, res) {
     res.setHeader('X-Accel-Buffering', 'no');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.flushHeaders?.();
-    Readable.fromWeb(upstream.body).pipe(res);
+    let emittedText = false;
+    for await (const chunk of stream) {
+      const delta = typeof chunk.text === 'string' ? chunk.text : '';
+      if (!delta) continue;
+      emittedText = true;
+      writeSse(res, { type: 'response.output_text.delta', delta });
+    }
+    if (!emittedText) {
+      writeSse(res, {
+        type: 'error',
+        error: {
+          message: 'Gemini returned an empty response. Please try again.',
+        },
+      });
+      return res.end();
+    }
+    writeSse(res, {
+      type: 'response.completed',
+      response: { id: `gemini-${Date.now().toString(36)}` },
+    });
+    return res.end();
   } catch (error) {
-    const isTimeout = error instanceof Error && error.name === 'AbortError';
-    return sendJson(res, isTimeout ? 504 : 400, {
+    if (res.headersSent) {
+      writeSse(res, {
+        type: 'error',
+        error: { message: getGeminiErrorMessage(error) },
+      });
+      return res.end();
+    }
+    const status = statusFromGeminiError(error);
+    return sendJson(res, error instanceof GeminiTimeoutError ? 504 : status, {
       error: {
-        message: isTimeout
-          ? 'GreenMind AI took too long to respond. Please try again.'
-          : error instanceof Error
-            ? error.message
-            : 'AI request failed.',
+        message: getGeminiErrorMessage(error),
       },
     });
   }

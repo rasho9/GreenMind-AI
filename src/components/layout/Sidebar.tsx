@@ -44,7 +44,7 @@ function Navigation({ compact = false, onNavigate }: NavigationProps) {
     <nav className="space-y-1.5">
       <p
         className={cn(
-          'mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-muted transition-opacity',
+          'mb-3 px-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-muted transition-opacity',
           compact && 'pointer-events-none h-0 overflow-hidden opacity-0',
         )}
       >
@@ -52,7 +52,7 @@ function Navigation({ compact = false, onNavigate }: NavigationProps) {
       </p>
       {navItems.map(({ label, icon: Icon, to }) => {
         const sharedClassName =
-          'focus-ring group relative flex h-12 w-full items-center overflow-hidden rounded-[var(--radius-control)] text-[17px] font-semibold transition-all duration-200';
+          'focus-ring group relative flex h-12 w-full items-center overflow-hidden rounded-[var(--radius-control)] text-[16px] font-medium transition-all duration-200';
         return (
           <NavLink
             key={label}

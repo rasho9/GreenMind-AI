@@ -1,6 +1,6 @@
 # GreenMind AI
 
-GreenMind AI is a premium, connected gardening workspace built for OpenAI Build Week. It brings plant recommendations, garden records, visual plant-health screening, care tasks, proactive intelligence, and a specialist AI assistant into one calm, responsive experience.
+GreenMind AI is a premium, connected gardening workspace built for AI Build Week. It brings plant recommendations, garden records, visual plant-health screening, care tasks, proactive intelligence, and a specialist AI assistant into one calm, responsive experience.
 
 > The app starts in a safe structured-demo mode. Set up the server routes described in [API_SETUP.md](API_SETUP.md) to enable live provider data without embedding credentials in the browser.
 
@@ -11,7 +11,7 @@ GreenMind AI is a premium, connected gardening workspace built for OpenAI Build 
 - Garden workspace: plant profiles, growth diary, care reminders, health history, exports, and responsive analytics.
 - Product quality: accessible focus states, keyboard-first global search (`Ctrl` / `Cmd` + `K`), routed navigation, responsive layouts, loading states, offline recovery, toast feedback, light/dark themes, and route-level lazy loading.
 - Security foundation: memory-only access tokens, server-ready HttpOnly refresh sessions, protected role-aware routes, inactivity timeout, request retries, client-side rate limits, encrypted session-scoped preferences, strong passwords, and verified image intake.
-- Production boundaries for OpenAI Responses streaming, OpenWeather, browser geolocation, MapTiler SDK, Perenual plant data, and future plant-vision providers.
+- Production boundaries for Gemini streaming, OpenWeather, browser geolocation, MapTiler SDK, Perenual plant data, and future plant-vision providers.
 
 ## Tech stack
 
@@ -52,7 +52,7 @@ Copy [`.env.example`](.env.example) to `.env.local` and configure only public br
 | `VITE_SESSION_IDLE_TIMEOUT_MS`   | Browser inactivity timeout; the server must independently enforce token expiry. |
 | `VITE_MAX_PLANT_IMAGE_UPLOAD_MB` | Maximum browser-side Plant Doctor image intake size (1–20 MB).                  |
 
-`OPENAI_API_KEY`, `OPENWEATHER_API_KEY`, and `PERENUAL_API_KEY` belong only in a server environment (for example, Vercel Environment Variables). Do not expose any of them as `VITE_*` variables. See the beginner-friendly [API setup guide](API_SETUP.md) for exact steps, provider limits, tests, and troubleshooting.
+`GEMINI_API_KEY`, `OPENWEATHER_API_KEY`, and `PERENUAL_API_KEY` belong only in a server environment (for example, Vercel Environment Variables). Do not expose any of them as `VITE_*` variables. See the beginner-friendly [API setup guide](API_SETUP.md) for exact steps, provider limits, tests, and troubleshooting.
 
 ## API integration guide
 
@@ -61,7 +61,7 @@ External integrations live under [`src/services`](src/services), with secure ser
 - `weather/` normalizes cached OpenWeather forecasts for UI cards.
 - `location/` wraps browser GPS, permission state, reverse lookup, and manual city search.
 - `maps/` configures the MapTiler SDK and domain-restricted browser token.
-- `openai/` streams Responses API events only through `/api/ai/respond`.
+- `ai/` streams provider-neutral events only through `/api/ai/respond`.
 - `plants/`, `disease/`, and `marketplace/` define provider-neutral contracts.
 - `apiClient.ts` centralizes timeouts, cancellation, offline handling, HTTP errors, and JSON parsing.
 
@@ -100,7 +100,7 @@ Feature data flows through small Zustand stores and typed service boundaries. Th
 
 1. Push this repository to GitHub or import it in Vercel.
 2. Select the Vite framework preset. The build command is `npm run build`; the output directory is `dist`.
-3. Add the environment variables from `.env.example` in Vercel’s project settings. Keep `OPENAI_API_KEY` available only to server-side functions.
+3. Add the environment variables from `.env.example` in Vercel’s project settings. Keep `GEMINI_API_KEY` available only to server-side functions.
 4. Deploy. [`vercel.json`](vercel.json) provides an SPA rewrite so direct links such as `/plant-doctor` and `/garden-diary/:id` resolve correctly.
 
 ## Screenshots
@@ -113,7 +113,7 @@ Add final judging screenshots here before submission:
 
 ## License
 
-This project is provided for OpenAI Build Week. Add your preferred open-source or proprietary license before public distribution.
+This project is provided for AI Build Week. Add your preferred open-source or proprietary license before public distribution.
 
 ## Contributors
 

@@ -1,6 +1,6 @@
 /**
  * Provider-independent error shape. UI code can present one friendly message
- * whether the request came from GreenMind, OpenWeather, OpenAI, or Perenual.
+ * whether the request came from GreenMind, OpenWeather, Gemini, or Perenual.
  */
 export type ProviderErrorCode =
   | 'OFFLINE'

@@ -33,7 +33,14 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AsyncState, Badge, Button, Card, SectionHeader, Skeleton } from '@/components/ui';
+import {
+  AsyncState,
+  Badge,
+  Button,
+  Card,
+  SectionHeader,
+  Skeleton,
+} from '@/components/ui';
 import { clientEnvironment } from '@/services/platform';
 import { plantClient } from '@/services/plants';
 import { PlantComparison, PlantVisual } from './components';
@@ -81,7 +88,9 @@ export function PlantDetailsPage() {
   const providerId = id?.match(/^provider-(\d+)$/)?.[1];
   const [providerPlant, setProviderPlant] = useState<Plant | null>(null);
   const [providerError, setProviderError] = useState('');
-  const [isProviderLoading, setIsProviderLoading] = useState(Boolean(providerId));
+  const [isProviderLoading, setIsProviderLoading] = useState(
+    Boolean(providerId),
+  );
   const favorites = usePlantLibraryStore((state) => state.favorites);
   const bookmarks = usePlantLibraryStore((state) => state.bookmarks);
   const compareIds = usePlantLibraryStore((state) => state.compareIds);
@@ -110,13 +119,14 @@ export function PlantDetailsPage() {
           setProviderPlant(providerPlantToLibraryPlant(profile));
         }
       })
-      .catch((error: unknown) =>
-        !controller.signal.aborted &&
-        setProviderError(
-          error instanceof Error
-            ? error.message
-            : 'Live plant details could not be retrieved. Please try again.',
-        ),
+      .catch(
+        (error: unknown) =>
+          !controller.signal.aborted &&
+          setProviderError(
+            error instanceof Error
+              ? error.message
+              : 'Live plant details could not be retrieved. Please try again.',
+          ),
       )
       .finally(() => {
         if (!controller.signal.aborted) setIsProviderLoading(false);
@@ -125,7 +135,7 @@ export function PlantDetailsPage() {
   }, [providerId]);
 
   const plant = providerId
-    ? providerPlant ?? undefined
+    ? (providerPlant ?? undefined)
     : id
       ? plantLibraryService.getById(id)
       : undefined;
@@ -158,9 +168,7 @@ export function PlantDetailsPage() {
   const comparePlants = [
     ...(plant.source === 'provider' ? [plant] : []),
     ...plantCatalog,
-  ].filter((item) =>
-    compareIds.includes(item.id),
-  );
+  ].filter((item) => compareIds.includes(item.id));
   return (
     <div>
       <Link
@@ -176,7 +184,9 @@ export function PlantDetailsPage() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="bg-brand text-white">
-                {plant.source === 'provider' ? 'Live provider record' : 'Plant profile'}
+                {plant.source === 'provider'
+                  ? 'Live provider record'
+                  : 'Plant profile'}
               </Badge>
               {plant.source !== 'provider' && (
                 <span className="rounded-lg bg-white/65 px-2.5 py-1.5 text-xs font-bold text-brand-dark">
@@ -281,7 +291,9 @@ export function PlantDetailsPage() {
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-[#b9ddc4]">
                 <BrainCircuit size={17} />
-                {plant.source === 'provider' ? 'Live provider data' : 'GPT-5.6 Analysis'}
+                {plant.source === 'provider'
+                  ? 'Live provider data'
+                  : 'Gemini Analysis'}
               </span>
               {plant.source !== 'provider' && (
                 <span className="grid size-12 place-items-center rounded-full border-4 border-[#7ab68c] text-sm font-extrabold">

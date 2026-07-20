@@ -45,17 +45,16 @@ export default {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
-      // A deliberately generous scale keeps the entire product readable at a glance.
-      // Semantic headings retain their own global sizes in globals.css.
+      // Compact SaaS scale. Semantic headings retain their own global sizes in globals.css.
       fontSize: {
-        xs: ['0.9375rem', { lineHeight: '1.45rem' }],
-        sm: ['1rem', { lineHeight: '1.6rem' }],
-        base: ['1rem', { lineHeight: '1.65rem' }],
-        lg: ['1.375rem', { lineHeight: '1.35' }],
-        xl: ['1.875rem', { lineHeight: '1.25' }],
-        '2xl': ['2.5rem', { lineHeight: '1.15' }],
-        '3xl': ['2.5rem', { lineHeight: '1.12' }],
-        '4xl': ['2.625rem', { lineHeight: '1.1' }],
+        xs: ['0.8125rem', { lineHeight: '1.25rem' }],
+        sm: ['0.9375rem', { lineHeight: '1.5rem' }],
+        base: ['0.9375rem', { lineHeight: '1.6rem' }],
+        lg: ['1.25rem', { lineHeight: '1.35' }],
+        xl: ['1.625rem', { lineHeight: '1.25' }],
+        '2xl': ['1.875rem', { lineHeight: '1.2' }],
+        '3xl': ['1.875rem', { lineHeight: '1.15' }],
+        '4xl': ['2.375rem', { lineHeight: '1.1' }],
       },
     },
   },

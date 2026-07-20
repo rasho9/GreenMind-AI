@@ -8,7 +8,7 @@ export type PlantVisionRequest = {
 
 /** Any vision provider must return this normalized result before React sees it. */
 export interface PlantDiseaseProvider {
-  readonly id: 'openai-vision' | 'plant-id' | 'plantnet' | 'google-vision';
+  readonly id: 'gemini-vision' | 'plant-id' | 'plantnet' | 'google-vision';
   analyze(
     request: PlantVisionRequest,
     signal?: AbortSignal,

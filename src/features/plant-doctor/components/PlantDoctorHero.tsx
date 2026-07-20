@@ -40,7 +40,7 @@ export function PlantDoctorHero() {
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-xl border border-brand/10 bg-surface/70 px-3 py-2 shadow-sm">
             <Sparkles size={15} className="text-brand" />
-            Ready for GPT-5.6 Vision
+            Ready for Gemini Vision
           </span>
         </div>
       </div>

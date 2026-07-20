@@ -1,7 +1,7 @@
 import { clientEnvironment } from '@/services/platform';
 import { tokenManager } from '@/services/security/tokenManager';
 import { ProviderError } from '@/services/utils';
-import type { OpenAIStreamEvent, OpenAIStreamRequest } from './types';
+import type { AIStreamEvent, AIStreamRequest } from './types';
 
 function getApiUrl(path: string) {
   return path.startsWith('http')
@@ -38,18 +38,18 @@ function errorCodeForStatus(status: number) {
 }
 
 /**
- * Streams a Responses API proxy. The browser only knows the GreenMind route;
- * OPENAI_API_KEY is read exclusively by api/ai/respond.js on the server.
+ * Streams the provider-neutral GreenMind AI proxy. Provider credentials are
+ * read only by api/ai/respond.js and never reach the browser.
  */
-export const openAIClient = {
+export const aiClient = {
   isEnabled() {
     return clientEnvironment.liveServicesEnabled;
   },
 
   async *stream(
-    request: OpenAIStreamRequest,
+    request: AIStreamRequest,
     signal?: AbortSignal,
-  ): AsyncGenerator<OpenAIStreamEvent, void, undefined> {
+  ): AsyncGenerator<AIStreamEvent, void, undefined> {
     if (!this.isEnabled()) {
       throw new ProviderError(
         'Live AI is disabled. Set VITE_ENABLE_LIVE_SERVICES=true after configuring the secure server endpoint.',
@@ -140,7 +140,10 @@ export const openAIClient = {
         if (event?.type === 'response.completed') {
           completed = true;
           yield { type: 'complete', responseId: event.response?.id };
-        } else if (event?.type === 'error' || event?.type === 'response.failed') {
+        } else if (
+          event?.type === 'error' ||
+          event?.type === 'response.failed'
+        ) {
           throw new ProviderError(
             event.error?.message ?? 'The AI response could not be completed.',
             'NETWORK',
@@ -158,7 +161,7 @@ export const openAIClient = {
     }
   },
 
-  async complete(request: OpenAIStreamRequest, signal?: AbortSignal) {
+  async complete(request: AIStreamRequest, signal?: AbortSignal) {
     let output = '';
     let completed = false;
     for await (const event of this.stream(request, signal)) {

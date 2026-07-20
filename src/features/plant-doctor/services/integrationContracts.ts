@@ -7,7 +7,7 @@ export type PlantVisionInput = {
 };
 
 /**
- * Provider boundary for GPT-5.6 Vision. Keep API keys and provider calls on a future server,
+ * Provider boundary for Gemini Vision. Keep API keys and provider calls on a future server,
  * then map that response to PlantDoctorAnalysis before it reaches React.
  */
 export interface PlantVisionClient {
@@ -32,4 +32,4 @@ export interface WeatherContextClient {
   }>;
 }
 
-// Planned adapters: OpenAI GPT-5.6 Vision, Plant.id, PlantNet, and OpenWeather.
+// Planned adapters: Gemini Vision, Plant.id, PlantNet, and OpenWeather.

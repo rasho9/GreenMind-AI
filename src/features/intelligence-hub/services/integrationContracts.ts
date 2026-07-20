@@ -30,7 +30,7 @@ export interface SoilIntelligenceClient {
   ): Promise<{ soilType: string; elevation: string }>;
 }
 
-/** Server-side GPT-5.6 adapter for proactive insight generation after trusted signals are resolved. */
+/** Server-side Gemini adapter for proactive insight generation after trusted signals are resolved. */
 export interface GardenIntelligenceClient {
   analyze(input: {
     location: HubLocation;
@@ -42,5 +42,5 @@ export interface GardenIntelligenceClient {
   }>;
 }
 
-// Planned providers: OpenAI GPT-5.6, Open-Meteo, browser geolocation, OpenStreetMap / Mapbox,
+// Planned providers: Gemini, Open-Meteo, browser geolocation, OpenStreetMap / Mapbox,
 // and future soil and plant data APIs. Keys and model calls must stay off the client.

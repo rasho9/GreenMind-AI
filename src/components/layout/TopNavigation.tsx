@@ -233,7 +233,7 @@ export function TopNavigation() {
               placeholder="Search your garden..."
               className="w-full bg-transparent text-sm font-medium text-ink outline-none placeholder:text-muted/75"
             />
-            <kbd className="rounded-md border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted">
+            <kbd className="topbar-shortcut rounded-md border border-line px-1.5 py-0.5 font-mono text-muted">
               Ctrl K
             </kbd>
           </label>

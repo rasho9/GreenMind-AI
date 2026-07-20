@@ -1,7 +1,7 @@
 import type { GreenMindAssistantClient } from './integrationContracts';
 import type { AssistantResponse } from '../types';
 import { clientRateLimiter } from '@/services/security';
-import { openAIClient } from '@/services/openai';
+import { aiClient } from '@/services/ai';
 
 /** Maps the streamed Responses API text into the presentation model without inventing content. */
 function responseFromLiveOutput(output: string): AssistantResponse {
@@ -31,7 +31,7 @@ export const greenMindAssistantService: GreenMindAssistantClient = {
     let output = '';
     let completed = false;
 
-    for await (const event of openAIClient.stream({
+    for await (const event of aiClient.stream({
       input: request.message,
       context: request.context,
       history: request.history,

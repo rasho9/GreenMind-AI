@@ -750,13 +750,13 @@ export function SettingsPage() {
                 detail: clientEnvironment.nominatimBaseUrl,
               },
               {
-                name: 'OpenAI Responses API',
+                name: 'Gemini API',
                 status: clientEnvironment.liveServicesEnabled
                   ? 'Connected via server'
                   : 'Demo mode',
                 detail: clientEnvironment.liveServicesEnabled
                   ? 'Streams through the secure /api/ai/respond route.'
-                  : 'Add OPENAI_API_KEY server-side, then enable live services.',
+                  : 'Add GEMINI_API_KEY server-side, then enable live services.',
               },
               {
                 name: 'MapTiler interactive map',

@@ -10,7 +10,7 @@ export type RecommendationSignals = {
 
 /**
  * Provider-agnostic recommendation input assembler. A server endpoint or an
- * OpenAI tool call can consume this without React components knowing providers.
+ * Gemini tool call can consume this without React components knowing providers.
  */
 export async function buildRecommendationSignals(
   environment: SmartRecommendationInput,

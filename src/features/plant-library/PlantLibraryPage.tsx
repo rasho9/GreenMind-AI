@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bot, Clock3, Flame, Sparkles, Star } from 'lucide-react';
 import { AsyncState, Card, SectionHeader, Skeleton } from '@/components/ui';
-import { openAIClient } from '@/services/openai';
+import { aiClient } from '@/services/ai';
 import { clientEnvironment } from '@/services/platform';
 import { plantClient } from '@/services/plants';
 import {
@@ -143,7 +143,7 @@ export function PlantLibraryPage() {
     setAiError('');
     setAiNote('');
     try {
-      const output = await openAIClient.complete({
+      const output = await aiClient.complete({
         task: 'assistant',
         input: `Help me interpret the Plant Library search for "${searchTerm}". Explain the most relevant choices in practical, concise Markdown. Do not invent plant records that are not in the supplied results.`,
         context: plants.slice(0, 8).map((plant) => ({
@@ -235,11 +235,12 @@ export function PlantLibraryPage() {
                 </div>
                 <p className="mt-5 max-w-xl text-sm leading-6 text-white/85">
                   The right plant is more than a category match. GreenMind is
-                  designed to layer your climate, space, and season on top of plant
-                  knowledge.
+                  designed to layer your climate, space, and season on top of
+                  plant knowledge.
                 </p>
                 <p className="mt-5 text-[11px] font-bold text-[#b9e5c5]">
-                  Connect live services to use real provider records and AI search.
+                  Connect live services to use real provider records and AI
+                  search.
                 </p>
               </div>
             </Card>
@@ -304,8 +305,14 @@ export function PlantLibraryPage() {
       <PlantComparison plants={comparePlants} onClear={clearCompare} />
       <section className="mt-10">
         <SectionHeader
-          eyebrow={liveServicesEnabled ? 'Live provider search' : 'Complete catalog'}
-          title={liveServicesEnabled ? 'Search live plant data' : 'Explore the plant library'}
+          eyebrow={
+            liveServicesEnabled ? 'Live provider search' : 'Complete catalog'
+          }
+          title={
+            liveServicesEnabled
+              ? 'Search live plant data'
+              : 'Explore the plant library'
+          }
           description={
             liveServicesEnabled
               ? query.trim().length < 2
