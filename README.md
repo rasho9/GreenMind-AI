@@ -7,6 +7,19 @@
 **GitHub Repository:** [https://github.com/rasho9/GreenMind-AI](https://github.com/rasho9/GreenMind-AI)
 
 ---
+## Built with Codex & GPT-5.6
+
+This project was developed with the assistance of OpenAI Codex and GPT-5.6.
+
+They were used to:
+- Generate and improve code.
+- Debug frontend and backend issues.
+- Refactor project structure.
+- Improve UI components.
+- Integrate APIs.
+- Write documentation and project README.
+- Assist with deployment and testing.
+---
 
 # 🌿 Features
 
